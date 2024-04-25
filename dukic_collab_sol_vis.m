@@ -16,7 +16,7 @@ end
 yticks = arrayfun(@(j)10.^(floor(log10(ylims{j}(1))):ceil(log10(ylims{j}(2)))),1:nstates_X,'uni',0);
 for j=1:nstates_X
     % subplot(nstates_X,2,(j-1)*nstates_X+1)
-    figure((j-1)*nstates_X+1)
+    figure((j-1)*nstates_X+2)
     h0=plot(tn_test(1:n),X_test(1:n,j),x_cl, ...
         t_test, Y_test(:,j),yearlength*[n_err_tol]*[1 1],ylims{j},'k--','linewidth',3,'markersize',7);
      set(gca,'ticklabelinterpreter','latex','fontsize',20,...
@@ -53,7 +53,7 @@ for j=1:nstates_X
     end
     saveas(gcf,['~/Desktop/hybrid_data',num2str(j),'_snr',num2str(snr_Y),'_numI',num2str(num_train_inds),'_subt,',num2str(subsamp_t),'_rng',num2str(seed1),'.png'])
 
-    figure((j-1)*nstates_X+2)
+    figure((j-1)*nstates_X+3)
     h2=plot(tn_pred(1:n),X_pred(1:n,j),xL_cl,...
         t_pred, Y_pred(:,j),yL_cl,yearlength*[n_err_tol]*[1 1],ylims{j},'k--','linewidth',3,'markersize',7);
     set(gca,'ticklabelinterpreter','latex','fontsize',20,...
@@ -91,7 +91,7 @@ end
 ks = a(randperm(length(a),3));
 ks = (1)';
 for j=1:2
-figure(j+4);clf
+figure(j+5);clf
 hold on
 for k=ks'
     i = train_inds(X_in(k));

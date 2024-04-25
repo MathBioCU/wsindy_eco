@@ -9,10 +9,12 @@ Z_true = arrayfun(@(x,y)rhs_X_true([x y],Y),xx,yy,'uni',0);
 
 subplot(2,1,1)
 surf(xx,yy,cellfun(@(z)z(2),Z'),'edgecolor','none')
+legend('rhs^X_{pred}','fontsize',16)
 view([0 90])
 colorbar
 subplot(2,1,2)
 surf(xx,yy,cellfun(@(z)z(2),Z_true'),'edgecolor','none')
+legend('rhs^X_{true}','fontsize',16)
 view([0 90])
 colorbar
 %% Yeq view
@@ -26,9 +28,11 @@ Z_true = arrayfun(@(x,y)rhs_Y_true(X,[x y]),xx,yy,'uni',0);
 
 subplot(2,1,1)
 surf(xx,yy,cellfun(@(z)z(1),Z'),'edgecolor','none')
+legend('rhs^Y_{pred}','fontsize',16)
 view([0 90])
 colorbar
 subplot(2,1,2)
 surf(xx,yy,cellfun(@(z)z(1),Z_true'),'edgecolor','none')
+legend('rhs^Y_{true}','fontsize',16)
 view([0 90])
 colorbar

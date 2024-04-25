@@ -4,7 +4,7 @@ rng('shuffle');
 seed1 = rng().Seed;
 seed2 = seed1;
 snr_X = 0; %<<< sweep over 
-snr_Y = 0.05; %<<< sweep over
+snr_Y = 0.01; %<<< sweep over
 train_time_frac = 0.75; %<<< sweep ovr
 subsamp_t = 2;
 num_train_inds = 18; %<<< sweep over

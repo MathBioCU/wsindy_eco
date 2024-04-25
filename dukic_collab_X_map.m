@@ -1,3 +1,5 @@
+addpath(genpath('wsindy_obj_base'))
+
 %%% get data
 dr = '/home/danielmessenger/Dropbox/Boulder/research/data/dukic collab/';
 % load([dr,'FH_feedback.mat']);

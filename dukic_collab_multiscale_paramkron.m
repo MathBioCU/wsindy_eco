@@ -53,7 +53,7 @@ addpath(genpath('wsindy_obj_base'))
 if toggle_sim>0
     num_sim = 0;
     x0s = [X(1,:);mean(X_train.*nX).*(1 + sqrt(3)*0.2*(rand(num_sim,2)-0.5)*2)];
-        for j=1:size(x0s,1)
+    for j=1:size(x0s,1)
         x0 = x0s(j,:);
         num_gen = floor(size(X,1));
         sig_tmax = 0;
@@ -89,7 +89,7 @@ if toggle_sim>0
         
         if toggle_vis
             figure(j);clf;set(gcf,'position',[1755         156        1837         716])
-            dukic_collab_vis;
+            dukic_collab_sol_vis;
         end
     end
 end
