@@ -1,3 +1,4 @@
+addpath(genpath('./wsindy_obj_base'))
 %% load hyperparams
 hybrid_ID_inputs; tic;
 
