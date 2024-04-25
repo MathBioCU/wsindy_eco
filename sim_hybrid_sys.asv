@@ -100,7 +100,7 @@ W_X_true = {[[1 0 0];[0 1 -3];[0 0 -3]]};
 
 tags_Ext_X_true = [1;2];
 tags_Ext_Y_true = [[0 0];[1 0]];
-W_X_true = {[[3.7 0.2];[-3.7 0.2]]};
+W_X_true = {[};
 
 [rhs_IC_true,W_IC,tags_X_IC] = shorttime_map(W_IC_true,zeros(1,nstates_Y),tags_IC_true,nY,nX);
 rhs_IC_true = @(X) rhs_IC_true(zeros(nstates_Y,1),X(:));
@@ -108,7 +108,7 @@ rhs_IC_true = @(X) rhs_IC_true(zeros(nstates_Y,1),X(:));
 [rhs_X_true,W_X] = longtime_map(W_X_true,tags_Ext_X_true,tags_Ext_Y_true,nX,nY);
 
 tmax_epi = 8;
-x0 = 0.1;
+x0 = 0.5;
 num_gen = 30;
 Ycell = cell(num_gen-1,1);
 t_epi = cell(num_gen-1,1);

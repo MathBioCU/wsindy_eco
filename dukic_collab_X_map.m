@@ -88,7 +88,8 @@ results{ii}(r,:) = [errs_2_X errs_inf_X tpr_X];
 end
 end
 
-%%
+%% observe benefit of WENDy
+
 load([dr,'X_map_test.mat'],'results','snr_Y','num_train_inds')
 boxplot([results{1}(:,3) results{2}(:,3)])
 set(gca,'Xticklabels',{'WENDy','OLS'})

@@ -1,3 +1,6 @@
+%%% broken script!!! %%%
+%%% goal is to estimate T, using the gradient w/r/t T
+
 iter_max = 1000;
 alphaT = 50000;
 

@@ -99,7 +99,7 @@ optm = WS_opt();
 % [WS,w_its,res,res_0,CovW] = optm.wendy(WS,'diag_reg',10^-6,'maxits',100);
 
 %% 1,3,6,7  2,4,5 are irregular
-for traj_ind = 1
+for traj_ind = 3
 if traj_ind>0
     [PKS,LOCS] = findpeaks(Uobj(traj_ind).Uobs{1});
     [a,b] = sort(PKS,'descend');

@@ -7,17 +7,17 @@ snr_X = 0; %<<< sweep over
 snr_Y = 0.01; %<<< sweep over
 train_time_frac = 0.75; %<<< sweep ovr
 subsamp_t = 2;
-num_train_inds = 18; %<<< sweep over
+num_train_inds = 25; %<<< sweep over
 
 noise_alg_X = 'logn'; noise_alg_Y = 'logn'; %<<< fixed
 test_length = 40; %<<< fixed
 err_tol = 0.2; %<<< fixed
-stop_tol = 100; %<<< fixed
+stop_tol = 10; %<<< fixed
 toggle_zero_crossing = 1; %<<< fixed
 
 toggle_sim = 1; %<<< doesn't affect alg
 toggle_vis = 1; %<<< doesn't affect alg
-toggle_view_data = 0;
+toggle_view_data = 1;
 tol_dd_sim = 10^-10; %<<< doesn't affect alg
 
 % %% set parameters
@@ -25,10 +25,10 @@ tol_dd_sim = 10^-10; %<<< doesn't affect alg
 % phifun_Y = optTFcos(3,0);
 phifun_Y = @(t)(1-t.^2).^9;
 
-tf_Y_params = {'meth','FFT','param',2,'mtmin',3,'subinds',2};%<<< user choice
+tf_Y_params = {'meth','FFT','param',2,'mtmin',3,'subinds',-3};%<<< user choice
 
-WENDy_args = {'maxits_wendy',10,...
-    'lambdas',10.^linspace(-4,0,50),'alpha',0.02,...
+WENDy_args = {'maxits_wendy',5,...
+    'lambdas',10.^linspace(-4,0,50),'alpha',0.01,...
     'ittol',10^-4,'diag_reg',10^-6,'verbose',0};
 autowendy = 1; %<<< decision needs to made
 tol = 5; %<<< decision needs to made
@@ -57,7 +57,7 @@ load([dr,'Gregs_mod_V=0.5.mat'],'Ycell','X','t_epi','custom_tags_X',...
     'linregargs_fun_X','nstates_X','nstates_Y','W_IC_true','tags_IC_true',...
     'W_Y_true','tags_X_true','tags_Y_true','W_X_true','tags_Ext_X_true','tags_Ext_Y_true',...
     'rhs_IC_true','rhs_Y_true','rhs_X_true','tn','t','Y');
-
+%% format data
 [Y_train,X_train,train_inds,train_time,nstates_X,nstates_Y,X_in,sigma_X,sigma_Y,nX,nY] = ...
     format_data(Ycell,X,t_epi,subsamp_t,train_time_frac,num_train_inds,test_length,snr_X,snr_Y,...
     noise_alg_X,noise_alg_Y,seed1,seed2);
@@ -72,8 +72,7 @@ end
 
 % custom_tags_Y = {[1+V zeros(1,nstates_Y-2) 1]}; %<<< decision needs to made
 % custom_tags_X = {[-V 0]}; %<<< decision needs to made
-linregargs_fun_IC = @(WS){'Aineq',-WS.G{1},'bineq',zeros(size(WS.G{1},1),1)};
-% linregargs_fun_Y = @(WS){};
+% linregargs_fun_IC = @(WS){'Aineq',-WS.G{1},'bineq',zeros(size(WS.G{1},1),1)};
 % linregargs_fun_X = @(WS){'Aineq',-WS.G{1},'bineq',zeros(size(WS.G{1},1),1)};
 % 
 % N = 50; UB = 0.02;
@@ -81,7 +80,7 @@ linregargs_fun_IC = @(WS){'Aineq',-WS.G{1},'bineq',zeros(size(WS.G{1},1),1)};
 % linregargs_fun_Y = @(WS)enforce_pos_zero(WS);
 % linregargs_fun_X = @(WS)enforce_pos(WS,N,UB);
 % 
-% linregargs_fun_IC = @(WS){};
+linregargs_fun_IC = @(WS){};
 linregargs_fun_Y = @(WS){};
 linregargs_fun_X = @(WS){};
 
