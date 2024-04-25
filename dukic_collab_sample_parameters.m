@@ -1,3 +1,6 @@
+%%% script incomplete!!! %%%
+%%% idea is to sample model parameters using the covariance matrices from WENDy
+
 %%% get random coefficients
 n = 1;
 W_IC_param = mvnrnd(cell2mat(WS_IC.get_params),CovW_IC,n);

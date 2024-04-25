@@ -9,6 +9,9 @@
 function [rhs,W,WS,lib_param,MSTLS_loss,lambda_hat,W_its,res_WENDy,res_0,CovW] = ...
     hybrid_MI(pmax_param,lib_state,lib_param,n_state,n_param,Uobj,tf,lhs,...
                 WENDy_args,linregargs_fun,autowendy,tol_cov,tol_libinc_min,scale_state,scale_param)
+
+    addpath(genpath('wsindy_obj_base'));
+
     p=-1;check=1;
     c = norminv(0.95);
     while and(check,p<pmax_param)

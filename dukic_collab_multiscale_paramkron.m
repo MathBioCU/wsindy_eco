@@ -1,4 +1,3 @@
-addpath(genpath('wsindy_obj_base'))
 %% load hyperparams
 hybrid_ID_inputs; tic;
 
@@ -11,6 +10,7 @@ hybrid_ID_inputs; tic;
     custom_tags_X,custom_tags_Y,linregargs_fun_IC,linregargs_fun_Y,linregargs_fun_X);
 
 %% coeff compare
+addpath(genpath('wsindy_obj_base'))
 W_IC_compare = inject_coeff_param(W_IC_true,zeros(1,nstates_Y),tags_IC_true,cell2mat(lib_Y_IC.tags'),cell2mat(lib_X_IC.tags'));
 errs_2_IC = norm(reshape([W_IC{:}]-[W_IC_compare{:}],[],1))/norm(reshape([W_IC_compare{:}],[],1));
 fprintf('IC coeff err 2: %1.3e \n',errs_2_IC);
@@ -49,6 +49,7 @@ fprintf('Xn TPR: %0.3f \n',tpr_X)
 fprintf('\n runtime: %2.3f \n',toc)
 
 %% sim full system
+addpath(genpath('wsindy_obj_base'))
 if toggle_sim>0
     num_sim = 0;
     x0s = [X(1,:);mean(X_train.*nX).*(1 + sqrt(3)*0.2*(rand(num_sim,2)-0.5)*2)];

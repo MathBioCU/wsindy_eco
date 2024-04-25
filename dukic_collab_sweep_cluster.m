@@ -1,3 +1,4 @@
+addpath(genpath('wsindy_obj_base'))
 ntrain_inds = 9:3:39;
 rngs = 1:500;
 

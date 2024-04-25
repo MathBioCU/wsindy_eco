@@ -1,4 +1,5 @@
 %% sweep
+addpath(genpath('wsindy_obj_base'))
 snr_Ys = 0.01;
 ntrain_inds = 9;
 rngs = 1:200;
@@ -132,7 +133,7 @@ end
 %% view
 ylabs = {'Coefficient error ($E_2^{IC}$)',[],'True Positivity Ratio (TPR$^{IC})$','$E_2^{Y}$',[],'TPR$^{Y}$','Coefficient error  ($E_2^{X}$)',[],'True Positivity Ratio (TPR$^{X})$','Walltime(sec)','Generations predicted ($n_{0.2}(\hat{\bf w})$)'};
 dr = '~/Dropbox/Boulder/research/data/dukic collab/';
-loadvars = {};{'results_cell','snr_Y','ntrain_inds','rngs'};
+loadvars = {'results_cell','snr_Y','ntrain_inds','rngs'};
 subx = 2:9;
 for subt = 1
 for ttf = [0.5]
@@ -141,10 +142,10 @@ for sind = [7 9 11] %[1 3 4 6 7 9]
 
 disp([sind kk])
 % load([dr,'sweep_snrY_',num2str(kk),'_ttf_',num2str(ttf),'_subt_',num2str(subt),'.mat'],loadvars{:}) %ttf = 0.5; ntinds = 6:30
-load([dr,'sweep_snrY_',num2str(kk),'_ttf_',num2str(ttf),'_06-Apr-2024.mat'],loadvars{:})
+% load([dr,'sweep_snrY_',num2str(kk),'_ttf_',num2str(ttf),'_06-Apr-2024.mat'],loadvars{:})
 % load([dr,'sweep_snrY_',num2str(kk),'_ttf_',num2str(ttf),'_07-Apr-2024.mat'],loadvars{:})
 % load([dr,'sweep_snrY_',num2str(kk),'_ttf_',num2str(ttf),'_subt_',num2str(subt),'_10-Apr-2024.mat'],loadvars{:})
-% load([dr,'sweep_snrY_',num2str(kk),'_ttf_',num2str(ttf),'_subt_',num2str(subt),'.mat'],loadvars{:})
+load([dr,'sweep_snrY_',num2str(kk),'_ttf_',num2str(ttf),'_subt_',num2str(subt),'.mat'],loadvars{:})
 
 runs = length(rngs);
 filter_fun = @(r)all([r(3)<=1 r(6)<=1 r(9)<=1]);
@@ -196,10 +197,7 @@ end
 
 %%
 ylabs = {'$E_2^{IC}$',[],'TPR$^{IC}$','$E_2^{Y}$',[],'TPR$^{Y}$','$E_2^{X}$',[],'TPR$^{X}$','Walltime(sec)','$n_{0.2}(\hat{\bf w})$'};
-snr_Ys = [0 0.005 0.01 0.05];
-kk=length(snr_Ys);
 sind = 11;%[1 3 4 6 7 9]
-load(['~/Dropbox/Boulder/research/data/dukic collab/sweep_snrY_',num2str(snr_Ys(kk)),'_02-Apr-2024.mat'],'results_cell','snr_Y')
 subx = 2:9;
 res_ind = cellfun(@(r)r(sind),results_cell(subx,:));
 figure(1);clf

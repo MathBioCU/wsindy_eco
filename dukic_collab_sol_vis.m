@@ -95,7 +95,7 @@ figure(j+4);clf
 hold on
 for k=ks'
     i = train_inds(X_in(k));
-    h0=plot(t_epi_test{i},Ycell_test{i}(:,j),'markersize',7,'linewidth',4)
+    h0=plot(t_epi_test{i},Ycell_test{i}(:,j),'markersize',7,'linewidth',4);
     plot(train_time{i==train_inds(X_in)},...
         Y_train{i==train_inds(X_in)}(:,j)*nY(j),'ro-','markersize',4,'linewidth',3)
     plot(0,X_train(i==train_inds,j)*nX(j),xO_cl,'markersize',12,'linewidth',5);

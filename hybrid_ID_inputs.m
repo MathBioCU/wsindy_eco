@@ -1,4 +1,5 @@
 %% format data
+addpath(genpath('wsindy_obj_base'))
 rng('shuffle');
 seed1 = rng().Seed;
 seed2 = seed1;
