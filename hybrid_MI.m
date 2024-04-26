@@ -13,7 +13,7 @@ function [rhs,W,WS,lib_param,MSTLS_loss,lambda_hat,W_its,res_WENDy,res_0,CovW] =
     addpath(genpath('wsindy_obj_base'));
 
     p=-1;check=1;
-    c = norminv(0.95);
+    c = norminv(autowendy);
     while and(check,p<pmax_param)
         p=p+1;
         polys_param = 0:p;
@@ -26,11 +26,14 @@ function [rhs,W,WS,lib_param,MSTLS_loss,lambda_hat,W_its,res_WENDy,res_0,CovW] =
         linregargs = linregargs_fun(WS);
         WENDy_MSTLS_args = [WENDy_args,{'linregargs',linregargs}];
         [WS,MSTLS_loss,lambda_hat,W_its,res_WENDy,res_0,CovW] = WS_opt().MSTLS_WENDy(WS,WENDy_MSTLS_args{:});
-        if and(autowendy==1,size(W_its,2)>1)
+        if and(c>0,size(W_its,2)>1)
             % disp([rms(res_0(:,end))^2 tol_cov*mean(diag(WS.cov)) tol_libinc_min^2 norm(WS.res)^2])
-            % check = rms(res_0(:,end))^2 > max(tol_cov*mean(diag(WS.cov)),tol_libinc_min^2);
-            tol = max( mean(diag(WS.cov))+c*std(diag(WS.cov)),tol_libinc_min^2);
-            check = rms(res_0(:,end))^2 > tol;
+            if c~=0
+                tol = max( mean(diag(WS.cov))+c*std(diag(WS.cov)),tol_libinc_min^2);
+                check = rms(res_0(:,end))^2 > tol;
+            else
+                check = rms(res_0(:,end))^2 > max(tol_cov*mean(diag(WS.cov)),tol_libinc_min^2);
+            end
             % mm = mean(diag(WS.cov))+var(diag(WS.cov))/3;
             % mm
             % check = rms(res_0(:,end))^2 > max( chi2inv(0.95,mm)*mean(diag(WS.cov)),tol_libinc_min^2);

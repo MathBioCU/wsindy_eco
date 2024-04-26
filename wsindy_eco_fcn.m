@@ -1,3 +1,7 @@
+%%% IC map assumed to be polynomial in X, no dependence on Y. Incremental lib for X
+%%% Xeq assumed to be power-law in X and Y, fixed lib for X, incremental lib for Y
+%%% Yeq assumed to be power-law in X and Y, fixed lib for Y, incremental for X
+
 function [rhs_IC,W_IC,rhs_Y,W_Y,rhs_X,W_X,...
     lib_Y_IC,lib_X_IC,lib_Y_Yeq,lib_X_Yeq,lib_Y_Xeq,lib_X_Xeq,...
     WS_IC,WS_Yeq,WS_Xeq,...
@@ -16,7 +20,7 @@ function [rhs_IC,W_IC,rhs_Y,W_Y,rhs_X,W_X,...
     IC(train_inds,nstates_Y+1:end) = X_train;
     IC(train_inds(X_in),1:nstates_Y) = cell2mat(arrayfun(@(U)cellfun(@(x)x(1,:),U.Uobs),Uobj_Y,'uni',0));
     Uobj_IC = wsindy_data(IC,0:max(train_inds)-1);
-    if autowendy==1
+    if autowendy>0
         S = arrayfun(@(U)cell2mat(U.estimate_sigma).^2,Uobj_Y,'uni',0);
         IC_cov = IC*0; 
         IC_cov(train_inds(X_in),1:nstates_Y) = cell2mat(S);
@@ -90,7 +94,7 @@ function [rhs_IC,W_IC,rhs_Y,W_Y,rhs_X,W_X,...
     % Yend = cell2mat(arrayfun(@(i)interp1(Y_ns{i,2},Y_ns{i,1},Tends(i))./nY,(1:length(subinds))','uni',0));
     X_Yend(subinds,nstates_X+1:end) = Yend;
     Uobj_X_Yend = wsindy_data(X_Yend,(0:max(train_inds)-1)*yearlength);
-    if autowendy==1
+    if autowendy>0
         Xn_cov = X_Yend*0; 
         errs_Yend = fillmissing(interp1(train_inds(X_in),errs_Yend,subinds,'linear'),'linear');
         Xn_cov(subinds,nstates_X+1:end) = errs_Yend.^2;
