@@ -5,7 +5,7 @@ loadvars = {'results_cell','snr_Y','ntrain_inds','rngs'};
 subx = ':';
 for subt = 1
 for ttf = [0.75]
-for kk = [0.03]
+for kk = [0.01]
 for sind = [7 9 11] %[1 3 4 6 7 9]
 
 disp([sind kk])

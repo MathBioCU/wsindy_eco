@@ -51,7 +51,7 @@ for train_time_frac = [0.75] %<<< sweep over
         subsamp_ts = [1 2];
     elseif train_time_frac == 0.75
         subsamp_ts = [1];
-        snr_Ys = [0.04 0.05];
+        snr_Ys = [0.005 0.02];
     elseif train_time_frac == 1
         subsamp_ts = [1 2 4 6];
         snr_Ys = [0 0.005 0.01 0.05];
