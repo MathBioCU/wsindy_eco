@@ -21,6 +21,7 @@ toggle_zero_crossing = 1; % halt simulations that are non-positive
 
 toggle_sim = 1; % toggle perform diagnostic forward simulation
 num_sim = 5; % number of out-of-sample testing simulations
+oos_std = 0.2; % std of out-of-sample ICs, uniformly randomly sampled around training IC
 toggle_vis = 1; % toggle plot diagnostics
 toggle_view_data = 1; % toggle view data before alg runs
 tol_dd_sim = 10^-10; % ODE tolerance (abs,rel) for diagnostic sim

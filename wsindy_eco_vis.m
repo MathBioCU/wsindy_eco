@@ -13,7 +13,6 @@ else
     yticks = arrayfun(@(j)[],1:nstates_X,'uni',0);
     YS = 'linear';
 end
-figure(1);clf
 for j=1:nstates_X
     subplot(nstates_X,2,(j-1)*nstates_X+1)
     hold on
