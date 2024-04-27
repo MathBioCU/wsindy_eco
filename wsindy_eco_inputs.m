@@ -1,12 +1,12 @@
 %% format data
 addpath(genpath('wsindy_obj_base'))
 
-rng('shuffle');
+rng(1);
 seed1 = rng().Seed; % seed for random generation selection, can just be pre-selected generations
 seed2 = seed1; % seed for random noise
 
 snr_X = 0; % noise level for X
-snr_Y = 0.01; % noise level for Y
+snr_Y = 0.02; % noise level for Y
 noise_alg_X = 'logn'; % noise distribution for X
 noise_alg_Y = 'logn'; % noise distribution for Y
 
@@ -30,6 +30,8 @@ tol_dd_sim = 10^-10; % ODE tolerance (abs,rel) for diagnostic sim
 % phifun_Y = optTFcos(3,0);
 phifun_Y = @(t)(1-t.^2).^9; % test function for continuous data
 tf_Y_params = {'meth','FFT','param',2,'mtmin',3,'subinds',-3};% test function params
+% phifun_Y = 'delta'; % test function for continuous data
+% tf_Y_params = {'meth','direct','param',1,'mtmin',1};% test function params
 
 WENDy_args = {'maxits_wendy',5,...
     'lambdas',10.^linspace(-4,0,50),'alpha',0.01,...
