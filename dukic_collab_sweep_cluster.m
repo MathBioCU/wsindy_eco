@@ -2,38 +2,39 @@ addpath(genpath('wsindy_obj_base'))
 ntrain_inds = 9:3:39;
 rngs = 1:500;
 
-snr_X = 0; %<<< sweep over 
+snr_X = 0; % noise level for X
+noise_alg_X = 'logn'; % noise distribution for X
+noise_alg_Y = 'logn'; % noise distribution for Y
 
-noise_alg_X = 'logn'; noise_alg_Y = 'logn'; %<<< fixed
-test_length = 40; %<<< fixed
-err_tol = 0.2; %<<< fixed
-stop_tol = 10; %<<< fixed
-toggle_zero_crossing = 1; %<<< fixed
+test_length = 40; % number of generations to test over
+err_tol = 0.2; % tol for n_tol= number of generations for which cumulative rel err < tol
+stop_tol = 10; % halt simulations if values exceed max observed by this multitude
+toggle_zero_crossing = 1; % halt simulations that are non-positive
 
-tol_dd_sim = 10^-10; %<<< doesn't affect alg
-% phifun_Y = optTFcos(3,0);%@(t)exp(-9./(1-t.^2));%<<< user choice
-phifun_Y = @(t)(1-t.^2).^9;
-num_sim = 5;
+toggle_sim = 1; % toggle perform diagnostic forward simulation
+num_sim = 5; % number of out-of-sample testing simulations
+oos_std = 0.2; % std of out-of-sample ICs, uniformly randomly sampled around training IC
+tol_dd_sim = 10^-10; % ODE tolerance (abs,rel) for diagnostic sim
 
-% tf_Y_params = {'meth','timefrac','param',0.15,'mtmin',5,'subinds',-3};%<<< user choice
-tf_Y_params = {'meth','FFT','param',2,'mtmin',3,'subinds',-3};%<<< user choice
+phifun_Y = @(t)(1-t.^2).^9; % test function for continuous data
+tf_Y_params = {'meth','FFT','param',2,'mtmin',3,'subinds',-3};% test function params
 
 WENDy_args = {'maxits_wendy',5,...
-    'lambdas',10.^linspace(-4,0,50),...
+    'lambdas',10.^linspace(-4,0,50),'alpha',0.01,...
     'ittol',10^-4,'diag_reg',10^-6,'verbose',0};
-autowendy = 1; %<<< decision needs to made
-tol = 5; %<<< decision needs to made
-tol_min = 0.1; %<<< decision needs to made
-tol_dd_learn = 10^-8;%<<< decision made
+autowendy = 0.95; % increment library approximate confidence interval with this confidence level 
+tol = 5; % default heuristic increment, chosen when autowendy = 0.5;
+tol_min = 0.1; % lower bound on rel. residual to increment library, in case covariance severely underestimated
+tol_dd_learn = 10^-8;% ODE tolerance for forward solves in computing Y(T)
 
-pmax_IC = 4;%<<< decision made 
-polys_Y_Yeq = 0:3; %<<< decision needs to made
-polys_X_Xeq = 0:2; %<<< decision needs to made
-pmax_X_Yeq = 4; %<<< decision made 
-pmax_Y_Xeq = 4; %<<< decision made
-neg_Y = 0; %<<< decision needs to made
-neg_X = 0; %<<< decision needs to made
-boolT = @(T)all([min(T,[],2)>=-2 sum(T,2)>=-2 max(T,[],2)<4],2); %<<< decision made
+pmax_IC = 4; % max poly degree for IC solve
+polys_Y_Yeq = 0:3; % Y library for Yeq solve
+pmax_X_Yeq = 4; % max poly degree for X terms in Yeq solve
+polys_X_Xeq = 0:2; % X library in Xeq solve
+pmax_Y_Xeq = 4; % max poly degree for Y terms in Xeq solve
+neg_Y = 0; % toggle use negative powers for X terms in Yeq
+neg_X = 0; % toggle use negative powers for Y terms in Xeq
+boolT = @(T)all([min(T,[],2)>=-2 sum(T,2)>=-2 max(T,[],2)<4],2); % restrict poly terms in Yeq
 
 % dr = '/home/danielmessenger/Dropbox/Boulder/research/data/dukic collab/';
 dr = '/projects/dame8201/datasets/dukic_collab/';
@@ -111,7 +112,7 @@ for kk=1:length(snr_Ys)
             tpr_X = tpscore(reshape([W_X{:}],[],1),reshape([W_X_compare{:}],[],1));
 
             n_err_tol = zeros(1,num_sim+1);
-            x0s = [X(1,:);mean(X_train.*nX).*(1 + sqrt(3)*0.2*(rand(num_sim,2)-0.5)*2)];
+            x0s = [X(1,:);mean(X_train.*nX).*(1 + sqrt(3)*oos_std*(rand(num_sim,2)-0.5)*2)];
             for j=1:size(x0s,1)
                 x0 = x0s(j,:);
                 num_gen = floor(size(X,1));

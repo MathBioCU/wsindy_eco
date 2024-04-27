@@ -6,12 +6,12 @@ seed1 = rng().Seed; % seed for random generation selection, can just be pre-sele
 seed2 = seed1; % seed for random noise
 
 snr_X = 0; % noise level for X
-snr_Y = 0.02; % noise level for Y
+snr_Y = 0.005; % noise level for Y
 noise_alg_X = 'logn'; % noise distribution for X
 noise_alg_Y = 'logn'; % noise distribution for Y
 
 train_time_frac = 0.75; % fraction of generations observed
-subsamp_t = 2; % within-generation timescale multiplier
+subsamp_t = 1; % within-generation timescale multiplier
 num_train_inds = 18; % number of generations observed
 
 test_length = 40; % number of generations to test over
@@ -36,7 +36,7 @@ tf_Y_params = {'meth','FFT','param',2,'mtmin',3,'subinds',-3};% test function pa
 WENDy_args = {'maxits_wendy',5,...
     'lambdas',10.^linspace(-4,0,50),'alpha',0.01,...
     'ittol',10^-4,'diag_reg',10^-6,'verbose',0};
-autowendy = 0.5; % increment library approximate confidence interval with this confidence level 
+autowendy = 0.95; % increment library approximate confidence interval with this confidence level 
 tol = 5; % default heuristic increment, chosen when autowendy = 0.5;
 tol_min = 0.1; % lower bound on rel. residual to increment library, in case covariance severely underestimated
 tol_dd_learn = 10^-8;% ODE tolerance for forward solves in computing Y(T)
