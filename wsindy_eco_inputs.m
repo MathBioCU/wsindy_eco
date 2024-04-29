@@ -5,7 +5,7 @@ rng(1);
 seed1 = rng().Seed; % seed for random generation selection, can just be pre-selected generations
 seed2 = seed1; % seed for random noise
 
-snr_X = 0; % noise level for X
+snr_X = 0.001; % noise level for X
 snr_Y = 0.005; % noise level for Y
 noise_alg_X = 'logn'; % noise distribution for X
 noise_alg_Y = 'logn'; % noise distribution for Y
@@ -20,7 +20,7 @@ stop_tol = 10; % halt simulations if values exceed max observed by this multitud
 toggle_zero_crossing = 1; % halt simulations that are non-positive
 
 toggle_sim = 1; % toggle perform diagnostic forward simulation
-num_sim = 5; % number of out-of-sample testing simulations
+num_sim = 0; % number of out-of-sample testing simulations
 oos_std = 0.2; % std of out-of-sample ICs, uniformly randomly sampled around training IC
 toggle_vis = 1; % toggle plot diagnostics
 toggle_view_data = 1; % toggle view data before alg runs
@@ -78,7 +78,7 @@ load([dr,'Gregs_mod_V=0.5.mat'],'Ycell','X','t_epi','custom_tags_X',...
     noise_alg_X,noise_alg_Y,seed1,seed2);
 
 if isequal(X_var,'true')
-    X_var = repmat(cell2mat(sigma_X),size(X_train,1),1);
+    X_var = sigma_X;
 end
 
 %% view data

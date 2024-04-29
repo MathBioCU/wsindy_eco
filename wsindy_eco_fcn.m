@@ -20,6 +20,11 @@ function [rhs_IC,W_IC,rhs_Y,W_Y,rhs_X,W_X,...
     Uobj_Y = cellfun(@(x,t)wsindy_data(x,t),Y_train,train_time);
     Uobj_tot = arrayfun(@(i)...
         wsindy_data([[Uobj_Y(i).Uobs{:}] repmat(X_train(X_in(i),:),Uobj_Y(i).dims,1)],train_time{i}),(1:length(Uobj_Y))');
+    foo = arrayfun(@(U)U.estimate_sigma('set',true),Uobj_tot,'uni',0);
+    for j=1:length(Uobj_tot)
+        Uobj_tot(j).sigmas(nstates_Y+1:end) = num2cell(X_var(X_in(j),:));
+    end
+
     IC = zeros(max(train_inds),nstates_Y+nstates_X);
     IC(train_inds,nstates_Y+1:end) = X_train;
     IC(train_inds(X_in),1:nstates_Y) = cell2mat(arrayfun(@(U)cellfun(@(x)x(1,:),U.Uobs),Uobj_Y,'uni',0));
@@ -28,7 +33,7 @@ function [rhs_IC,W_IC,rhs_Y,W_Y,rhs_X,W_X,...
         S = arrayfun(@(U)cell2mat(U.estimate_sigma).^2,Uobj_Y,'uni',0);
         IC_cov = IC*0; 
         IC_cov(train_inds(X_in),1:nstates_Y) = cell2mat(S);
-        IC_cov(train_inds(X_in),nstates_Y+1:end) = X_var(X_in,:);
+        IC_cov(train_inds(X_in),nstates_Y+1:end) = X_var(X_in,:).^2;
         Uobj_IC.R0 = spdiags(IC_cov(:),0,numel(IC_cov),numel(IC_cov));
     end
     E = eye(nstates_Y+nstates_X);
@@ -102,6 +107,7 @@ function [rhs_IC,W_IC,rhs_Y,W_Y,rhs_X,W_X,...
     if autowendy>0
         Xn_cov = X_Yend*0; 
         errs_Yend = fillmissing(interp1(train_inds(X_in),errs_Yend,subinds,'linear'),'linear');
+        Xn_cov(subinds,1:nstates_X) = X_var(X_sub,:).^2;
         Xn_cov(subinds,nstates_X+1:end) = errs_Yend.^2;
         Uobj_X_Yend.R0 = spdiags(Xn_cov(:),0,numel(Xn_cov),numel(Xn_cov));
     end

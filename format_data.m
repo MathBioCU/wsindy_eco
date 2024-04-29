@@ -41,7 +41,7 @@ function [Y_train,X_train,train_inds,train_time,nstates_X,nstates_Y,X_in,sigma_X
         % sig = sqrt(log(expsig)*2);
         % sigma_X = sig+rms(X_train)*0;
         % X_train = X_train.*exp(sigma_X.*randn(size(X_train)));
-        sigma_X = snr_X*rms(X_train);
+        sigma_X = repmat(snr_X*rms(X_train),size(X_train,1),1);
         if snr_X>0
             X_train = X_train.^2./sqrt(X_train.^2+rms(X_train).^2*snr_X^2).*exp(sqrt(log(1+rms(X_train).^2./X_train.^2*snr_X^2)).*randn(size(X_train)));
         end
@@ -70,7 +70,7 @@ function [Y_train,X_train,train_inds,train_time,nstates_X,nstates_Y,X_in,sigma_X
     X_train = X_train./nX;
     nY = mean(abs(cell2mat(Y_train)));
     Y_train = cellfun(@(x)x./nY,Y_train,'uni',0);
-    sigma_X = num2cell(sigma_X./nX);
+    sigma_X = sigma_X./nX;
     sigma_Y = cellfun(@(s)num2cell(s./nY),sigma_Y,'uni',0);
 
 end
