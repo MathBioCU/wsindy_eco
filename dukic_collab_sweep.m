@@ -1,6 +1,6 @@
 addpath(genpath('wsindy_obj_base'))
-ntrain_inds = 9:3:39;
-rngs = 1:500;
+ntrain_inds = 18;
+rngs = 1:4;
 
 snr_X = 0; %<<< sweep over 
 
@@ -21,10 +21,12 @@ tf_Y_params = {'meth','FFT','param',2,'mtmin',3,'subinds',-3};%<<< user choice
 WENDy_args = {'maxits_wendy',5,...
     'lambdas',10.^linspace(-4,0,50),...
     'ittol',10^-4,'diag_reg',10^-6,'verbose',0};
-autowendy = 1; %<<< decision needs to made
+autowendy = 0.95; %<<< decision needs to made
 tol = 5; %<<< decision needs to made
 tol_min = 0.1; %<<< decision needs to made
 tol_dd_learn = 10^-8;%<<< decision made
+X_var = [];
+oos_std = 0.2;
 
 pmax_IC = 4;%<<< decision made 
 polys_Y_Yeq = 0:3; %<<< decision needs to made
@@ -48,8 +50,8 @@ for train_time_frac = [0.75] %<<< sweep over
     if train_time_frac == 0.5
         subsamp_ts = [1 2];
     elseif train_time_frac == 0.75
-        subsamp_ts = [1];
-        snr_Ys = [0.04 0.05];
+        subsamp_ts = [2];
+        snr_Ys = [0.01];
     elseif train_time_frac == 1
         subsamp_ts = [1 2 4 6];
         snr_Ys = [0 0.005 0.01 0.05];
@@ -58,7 +60,7 @@ for subsamp_t = subsamp_ts %<<< sweep over
 for kk=1:length(snr_Ys)
     snr_Y = snr_Ys(kk);
     for ii=1:length(ntrain_inds)
-        parfor jj=1:length(rngs)
+        for jj=1:length(rngs)
             % if snr_Y==0
                 gensamp_seed = rngs(jj);
             % else
@@ -77,7 +79,7 @@ for kk=1:length(snr_Ys)
             %%% run alg
             [rhs_IC,W_IC,rhs_Y,W_Y,rhs_X,W_X,lib_Y_IC,lib_X_IC,lib_Y_Yeq,lib_X_Yeq,lib_Y_Xeq,lib_X_Xeq]= ...
                 wsindy_eco_fcn(toggle_zero_crossing,stop_tol,phifun_Y,tf_Y_params,WENDy_args,autowendy,tol,tol_min,tol_dd_learn,pmax_IC,polys_Y_Yeq,polys_X_Xeq,pmax_X_Yeq,pmax_Y_Xeq,neg_Y,neg_X,boolT,...
-                Y_train,X_train,train_inds,train_time,t_epi,yearlength,nstates_X,nstates_Y,X_in,nX,nY,...
+                Y_train,X_train,X_var,train_inds,train_time,t_epi,yearlength,nstates_X,nstates_Y,X_in,nX,nY,...
                 custom_tags_X,custom_tags_Y,linregargs_fun_IC,linregargs_fun_Y,linregargs_fun_X);
             RT = toc;
     
@@ -110,7 +112,7 @@ for kk=1:length(snr_Ys)
             tpr_X = tpscore(reshape([W_X{:}],[],1),reshape([W_X_compare{:}],[],1));
 
             n_err_tol = zeros(1,num_sim+1);
-            x0s = [X(1,:);mean(X_train.*nX).*(1 + sqrt(3)*0.2*(rand(num_sim,2)-0.5)*2)];
+            x0s = [X(1,:);mean(X_train.*nX).*(1 + sqrt(3)*oos_std*(rand(num_sim,2)-0.5)*2)];
             for j=1:size(x0s,1)
                 x0 = x0s(j,:);
                 num_gen = floor(size(X,1));
@@ -140,14 +142,15 @@ for kk=1:length(snr_Ys)
         
             end
 
-            results_cell{ii,jj} = [errs_2_IC,errs_inf_IC,tpr_IC,...
+            results_cell{ii,jj} = [...
+                errs_2_IC,errs_inf_IC,tpr_IC,...
                 errs_2_Y,errs_inf_Y,tpr_Y,...
                 errs_2_X,errs_inf_X,tpr_X,RT,n_err_tol];
             % sim_cell{ii,jj} = {X_pred,Ycell_pred};
     
         end
     end
-    save([dr,'sweep_snrY_',num2str(snr_Y),'_ttf_',num2str(train_time_frac),'_subt_',num2str(subsamp_t),'.mat'])
+    % save([dr,'sweep_snrY_',num2str(snr_Y),'_ttf_',num2str(train_time_frac),'_subt_',num2str(subsamp_t),'.mat'])
 end
 end
 end

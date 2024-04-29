@@ -40,6 +40,7 @@ autowendy = 0.95; % increment library approximate confidence interval with this 
 tol = 5; % default heuristic increment, chosen when autowendy = 0.5;
 tol_min = 0.1; % lower bound on rel. residual to increment library, in case covariance severely underestimated
 tol_dd_learn = 10^-8;% ODE tolerance for forward solves in computing Y(T)
+X_var = 'true';
 
 pmax_IC = 4; % max poly degree for IC solve
 polys_Y_Yeq = 0:3; % Y library for Yeq solve
@@ -75,6 +76,10 @@ load([dr,'Gregs_mod_V=0.5.mat'],'Ycell','X','t_epi','custom_tags_X',...
 [Y_train,X_train,train_inds,train_time,nstates_X,nstates_Y,X_in,sigma_X,sigma_Y,nX,nY] = ...
     format_data(Ycell,X,t_epi,subsamp_t,train_time_frac,num_train_inds,test_length,snr_X,snr_Y,...
     noise_alg_X,noise_alg_Y,seed1,seed2);
+
+if isequal(X_var,'true')
+    X_var = repmat(cell2mat(sigma_X),size(X_train,1),1);
+end
 
 %% view data
 
