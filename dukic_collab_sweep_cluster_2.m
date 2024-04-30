@@ -1,6 +1,6 @@
 addpath(genpath('wsindy_obj_base'))
 ntrain_inds = 9:3:24;
-rngs = 1:8;
+rngs = 1:500;
 
 snr_X = 0; % noise level for X
 noise_alg_X = 'logn'; % noise distribution for X
@@ -19,7 +19,8 @@ tol_dd_sim = 10^-10; % ODE tolerance (abs,rel) for diagnostic sim
 phifun_Y = @(t)(1-t.^2).^9; % test function for continuous data
 tf_Y_params = {'meth','FFT','param',2,'mtmin',3,'subinds',-3};% test function params
 
-WENDy_args = {'maxits_wendy',5,...
+maxits_wendy = 0;
+WENDy_args = {'maxits_wendy',maxits_wendy,...
     'lambdas',10.^linspace(-4,0,50),'alpha',0.01,...
     'ittol',10^-4,'diag_reg',10^-6,'verbose',0};
 autowendy = 0.95; % increment library approximate confidence interval with this confidence level 
@@ -51,7 +52,7 @@ for train_time_frac = [0.75] %<<< sweep over
     if train_time_frac == 0.5
         subsamp_ts = [1 2];
     elseif train_time_frac == 0.75
-        subsamp_ts = [1];
+        subsamp_ts = [2];
         snr_Ys = [0.005 0.02 0.05];
     elseif train_time_frac == 1
         subsamp_ts = [1 2 4 6];
