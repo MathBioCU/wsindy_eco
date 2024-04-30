@@ -38,8 +38,8 @@ neg_Y = 0; % toggle use negative powers for X terms in Yeq
 neg_X = 0; % toggle use negative powers for Y terms in Xeq
 boolT = @(T)all([min(T,[],2)>=-2 sum(T,2)>=-2 max(T,[],2)<4],2); % restrict poly terms in Yeq
 
-dr = '/home/danielmessenger/Dropbox/Boulder/research/data/dukic collab/';
-% dr = '/projects/dame8201/datasets/dukic_collab/';
+% dr = '/home/danielmessenger/Dropbox/Boulder/research/data/dukic collab/';
+dr = '/projects/dame8201/datasets/dukic_collab/';
 
 load([dr,'Gregs_mod_V=0.5.mat'],'Ycell','X','t_epi','custom_tags_X',...
     'yearlength','custom_tags_Y','linregargs_fun_IC','linregargs_fun_Y',...
