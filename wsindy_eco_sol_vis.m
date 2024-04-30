@@ -47,9 +47,9 @@ for j=1:nstates_X
     end
 
     if isequal(yscl,'log')
-        legend([h0(2);h2],{'true data','observed data'},'location','sw','interpreter','latex','fontsize',16)
+        legend([h0(2);h2],{'true model output','observed data'},'location','sw','interpreter','latex','fontsize',16)
     else
-        legend([h0(2);h2],{'true data','observed data'},'location','nw','interpreter','latex','fontsize',16)
+        legend([h0(2);h2],{'true model output','observed data'},'location','nw','interpreter','latex','fontsize',16)
     end
     saveas(gcf,['~/Desktop/hybrid_data',num2str(j),'_snr',num2str(snr_Y),'_numI',num2str(num_train_inds),'_subt,',num2str(subsamp_t),'_rng',num2str(seed1),'.png'])
 
@@ -63,9 +63,9 @@ for j=1:nstates_X
     grid on;
 
     if isequal(yscl,'log')
-        legend(h2(2),{'predicted data'},'location','sw','interpreter','latex','fontsize',16)
+        legend(h2(2),{'learned model output'},'location','sw','interpreter','latex','fontsize',16)
     else
-        legend(h2(2),{'predicted data'},'location','nw','interpreter','latex','fontsize',16)
+        legend(h2(2),{'learned model output'},'location','nw','interpreter','latex','fontsize',16)
     end
 
     if j==1

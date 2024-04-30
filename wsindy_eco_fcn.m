@@ -11,6 +11,7 @@ function [rhs_IC,W_IC,rhs_Y,W_Y,rhs_X,W_X,...
         Y_train,X_train,X_var,train_inds,train_time,t_epi,yearlength,nstates_X,nstates_Y,X_in,nX,nY,...
         custom_tags_X,custom_tags_Y,linregargs_fun_IC,linregargs_fun_Y,linregargs_fun_X)
 
+
     if isempty(X_var)
         X_var = X_train*0;
     end
@@ -117,6 +118,7 @@ function [rhs_IC,W_IC,rhs_Y,W_Y,rhs_X,W_X,...
     lhs = arrayfun(@(i)term('ftag',E(i,:),'linOp',1),(1:nstates_X)','uni',0);
     [rhs_X,W_X,WS_Xeq,lib_Y_Xeq,loss_X,lambda_X,w_its,res_X,res_0_X,CovW_X] = ...
         hybrid_MI(pmax_Y_Xeq,lib_X_Xeq,lib_Y_Xeq,nstates_X,nstates_Y,Uobj_X_Yend,tf_X,lhs,WENDy_args,linregargs_fun_X,autowendy,tol,tol_min,nX,nY);
+
 
 end
 

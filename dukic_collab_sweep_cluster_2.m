@@ -1,6 +1,6 @@
 addpath(genpath('wsindy_obj_base'))
-ntrain_inds = 9:3:39;
-rngs = 1:500;
+ntrain_inds = 9:3:24;
+rngs = 1:8;
 
 snr_X = 0; % noise level for X
 noise_alg_X = 'logn'; % noise distribution for X
@@ -37,8 +37,8 @@ neg_Y = 0; % toggle use negative powers for X terms in Yeq
 neg_X = 0; % toggle use negative powers for Y terms in Xeq
 boolT = @(T)all([min(T,[],2)>=-2 sum(T,2)>=-2 max(T,[],2)<4],2); % restrict poly terms in Yeq
 
-% dr = '/home/danielmessenger/Dropbox/Boulder/research/data/dukic collab/';
-dr = '/projects/dame8201/datasets/dukic_collab/';
+dr = '/home/danielmessenger/Dropbox/Boulder/research/data/dukic collab/';
+% dr = '/projects/dame8201/datasets/dukic_collab/';
 
 load([dr,'Gregs_mod_V=0.5.mat'],'Ycell','X','t_epi','custom_tags_X',...
     'yearlength','custom_tags_Y','linregargs_fun_IC','linregargs_fun_Y',...
@@ -52,7 +52,7 @@ for train_time_frac = [0.75] %<<< sweep over
         subsamp_ts = [1 2];
     elseif train_time_frac == 0.75
         subsamp_ts = [1];
-        snr_Ys = [0.005 0.02];
+        snr_Ys = [0.005 0.02 0.05];
     elseif train_time_frac == 1
         subsamp_ts = [1 2 4 6];
         snr_Ys = [0 0.005 0.01 0.05];
@@ -83,6 +83,10 @@ for kk=1:length(snr_Ys)
                 Y_train,X_train,X_var,train_inds,train_time,t_epi,yearlength,nstates_X,nstates_Y,X_in,nX,nY,...
                 custom_tags_X,custom_tags_Y,linregargs_fun_IC,linregargs_fun_Y,linregargs_fun_X);
             RT = toc;
+
+            maps_cell{ii,jj} = {rhs_IC,rhs_Y,rhs_X};
+            coeffs_cell{ii,jj} = {W_IC,W_Y,W_X};
+            libs_cell{ii,jj} = cellfun(@(L)cell2mat(L.tags'),{lib_Y_IC,lib_X_IC,lib_Y_Yeq,lib_X_Yeq,lib_Y_Xeq,lib_X_Xeq},'uni',0);
     
             %%% process results
             W_IC_compare = inject_coeff_param(W_IC_true,zeros(1,nstates_Y),tags_IC_true,cell2mat(lib_Y_IC.tags'),cell2mat(lib_X_IC.tags'));
@@ -140,7 +144,6 @@ for kk=1:length(snr_Ys)
                 else
                     n_err_tol(j) = n_err_tol_temp-1;
                 end
-        
             end
 
             results_cell{ii,jj} = [errs_2_IC,errs_inf_IC,tpr_IC,...
@@ -150,7 +153,7 @@ for kk=1:length(snr_Ys)
     
         end
     end
-    save([dr,'sweep_snrY_',num2str(snr_Y),'_ttf_',num2str(train_time_frac),'_subt_',num2str(subsamp_t),'.mat'])
+    % save([dr,'sweep_snrY_',num2str(snr_Y),'_ttf_',num2str(train_time_frac),'_subt_',num2str(subsamp_t),'.mat'])
 end
 end
 end

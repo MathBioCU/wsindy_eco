@@ -1,12 +1,16 @@
 %% view
-ylabs = {'Coefficient error ($E_2^{IC}$)',[],'True Positivity Ratio (TPR$^{IC})$','$E_2^{Y}$',[],'TPR$^{Y}$','Coefficient error  ($E_2^{X}$)',[],'True Positivity Ratio (TPR$^{X})$','Walltime(sec)','Generations predicted ($n_{0.2}(\hat{\bf w})$)','Generations predicted ($n_{0.2}(\hat{\bf w})$)'};
+ylabs = {'Coefficient error ($E_2^{IC}$)',[],'True Positivity Ratio (TPR$^{IC})$',...
+    'Coefficient error ($E_2^{Y}$)',[],'True Positivity Ratio (TPR$^{Y})$',...
+    'Coefficient error  ($E_2^{X}$)',[],'True Positivity Ratio (TPR$^{X})$','Walltime(sec)','Generations predicted ($n_{0.2}(\hat{\bf w})$)','Generations predicted ($n_{0.2}(\hat{\bf w})$)'};
 dr = '~/Dropbox/Boulder/research/data/dukic collab/';
 loadvars = {'results_cell','snr_Y','ntrain_inds','rngs'};
-subx = 1:8;
+subx = 1:6;
 for subt = 2
 for ttf = [0.75]
-for kk = [0.01]
-for sind = [12] %[1 3 4 6 7 9]
+for kk = [.05]
+for sind = [11] %[1 3 4 6 7 9]
+
+figure(sind);clf
 
 % disp([sind kk])
 % load([dr,'sweep_snrY_',num2str(kk),'_ttf_',num2str(ttf),'_subt_',num2str(subt),'.mat'],loadvars{:}) %ttf = 0.5; ntinds = 6:30
@@ -15,13 +19,14 @@ for sind = [12] %[1 3 4 6 7 9]
 % load([dr,'sweep_snrY_',num2str(kk),'_ttf_',num2str(ttf),'_subt_',num2str(subt),'_10-Apr-2024.mat'],loadvars{:})
 load([dr,'sweep_snrY_',num2str(kk),'_ttf_',num2str(ttf),'_subt_',num2str(subt),'.mat'],loadvars{:})
 runs = length(rngs);
-filter_fun = @(r)all([r(3)<=1 r(6)<=1 r(9)<=1]);
+filter_fun = @(r)all([r(3)==1 r(6)==1 r(9)<=1]);
 
 if isequal(subx,':')
     subx = 1:size(results_cell,1);
 end
 
 filter_inds = cellfun(@(r)filter_fun(r),results_cell(subx,:));
+disp(['percent kept'])
 arrayfun(@(i)length(find(filter_inds(i,:)))/size(filter_inds,2),1:size(filter_inds,1))'
 
 if sind<12
@@ -37,18 +42,32 @@ res_ind = arrayfun(@(i)res_ind(i,filter_inds(i,:)),1:length(subx),'uni',0);
 if ismember(sind,[1 4 7])
     % res_ind = cellfun(@(r)max(r,10^-6),res_ind,'uni',0);
     OL = cellfun(@(r)r(r>100),res_ind,'uni',0);
-    % cellfun(@(o)length(o)/runs,OL)
+    disp(['percent remaining errs > 100'])
+    cellfun(@(o,r)length(o)/length(r),OL,res_ind)
     res_ind = cellfun(@(r)r(r<=100),res_ind,'uni',0);
 end
-g = arrayfun(@(i) zeros(length(res_ind{i}),1)+i-1,(1:length(res_ind))','uni',0);
-g = cell2mat(g);
-res_ind = cell2mat(res_ind)';
-x = ntrain_inds(subx);
-figure(sind);
 
-h=boxplot(res_ind,g,'whisker',1.5);
-set(h,'LineWidth',2)
-set(h,'MarkerSize',10)
+% g = arrayfun(@(i) zeros(length(res_ind{i}),1)+i-1,(1:length(res_ind))','uni',0);
+% g = cell2mat(g);
+% res_ind = cell2mat(res_ind)';
+% h=boxplot(res_ind,g,'whisker',1.5);
+% set(h,'LineWidth',2)
+% set(h,'MarkerSize',10)
+
+x = ntrain_inds(subx);
+rr = cellfun(@(r)r',res_ind,'uni',0)';
+if ~ismember(sind,[1 4 7])
+    violin(rr','kernel','box',...
+    'bw',range(cell2mat(rr))/size(results_cell,2)^(1/2),'support',[min(cell2mat(rr))-eps*range(cell2mat(rr)) max(cell2mat(rr))+eps*range(cell2mat(rr))],...
+    'facecolor',[0 0.5 1],'plotlegend',0,'linewidth',1.7,'x',x);
+else
+    violin(cellfun(@(r)log10(r),rr','Un',0),'kernel','box',...
+    'bw',range(log10(cell2mat(rr)))/size(results_cell,2)^(1/2),'support',[-7 2+eps],...
+    'facecolor',[0 0.5 1],'plotlegend',0,'linewidth',1.7,'x',x);
+end
+set(gca,'Xtick',x)
+% drawnow
+
 % replaceboxes
 
 % ylim=[0 size(X,1)-1];
@@ -56,17 +75,17 @@ set(h,'MarkerSize',10)
 ylabel(ylabs(sind),'interpreter','latex')
 xlabel('Generations observed ($|\mathcal{I}|$)','interpreter','latex')
 % legend(h,['$\sigma_{NR}=',num2str(snr_Y),'$'],'interpreter','latex','location','best')
-% set(gca,'Xtick',x,'ticklabelinterpreter','latex','fontsize',20,'xlim',[min(x) max(x)])
 set(gca,'Xticklabels',x,'ticklabelinterpreter','latex','fontsize',18)
 if ismember(sind,[1 4 7])
-    set(gca,'Yscale','log','Ytick',10.^(-6:2:2),'Ylim',[10^-6 10^2])
+    % set(gca,'Yscale','log','Ytick',10.^(-6:2:2),'Ylim',[10^-6 10^2])
+    set(gca,'Ytick',-6:2:2,'Yticklabels',num2str(10.^(-6:2:2)','%0.0e'),'Ylim',[-6 2])
 elseif sind==11
     set(gca,'Ylim',[0 80])
 end
 grid on
 
-saveas(gcf,['~/Desktop/hybrid_snrY_',num2str(kk),'_ttf_',num2str(ttf),'_stat',num2str(sind),'_tpr1.png'])
 % saveas(gcf,['~/Desktop/hybrid_snrY_',num2str(kk),'_ttf_',num2str(ttf),'_stat',num2str(sind),'.png'])
+saveas(gcf,['~/Desktop/hybrid_snrY_',num2str(kk),'_ttf_',num2str(ttf),'_stat',num2str(sind),'_tpr1.png'])
 
 end
 end
@@ -80,7 +99,19 @@ subx = 2:9;
 res_ind = cellfun(@(r)r(sind),results_cell(subx,:));
 figure(1);clf
 % histogram(res_ind(end,:),20)
-violin(res_ind')
+violin(res_ind,'kernel','box','bw',500^(1/4),'facecolor',[0 1 1],'plotlegend',0,'linewidth',1.7);
+ylabel(ylabs(sind),'interpreter','latex')
+xlabel('Generations observed ($|\mathcal{I}|$)','interpreter','latex')
+% legend(h,['$\sigma_{NR}=',num2str(snr_Y),'$'],'interpreter','latex','location','best')
+% set(gca,'Xtick',x,'ticklabelinterpreter','latex','fontsize',20,'xlim',[min(x) max(x)])
+set(gca,'Xticklabels',x,'ticklabelinterpreter','latex','fontsize',18)
+if ismember(sind,[1 4 7])
+    set(gca,'Yscale','log','Ytick',10.^(-6:2:2),'Ylim',[10^-6 10^2])
+elseif sind==11
+    set(gca,'Ylim',[0 80])
+end
+grid on
+
 % distributionPlot(res_ind','colormap',copper)
 ylim([0 80])
 %%

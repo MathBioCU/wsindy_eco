@@ -27,10 +27,10 @@ function [rhs,W,WS,lib_param,MSTLS_loss,lambda_hat,W_its,res_WENDy,res_0,CovW] =
         WENDy_MSTLS_args = [WENDy_args,{'linregargs',linregargs}];
         [WS,MSTLS_loss,lambda_hat,W_its,res_WENDy,res_0,CovW] = WS_opt().MSTLS_WENDy(WS,WENDy_MSTLS_args{:});
         if and(c>0,size(W_its,2)>1)
-            % disp([rms(res_0(:,end))^2 tol_cov*mean(diag(WS.cov)) tol_libinc_min^2 norm(WS.res)^2])
             if c~=0
                 tol = max( mean(diag(WS.cov))+c*std(diag(WS.cov)),tol_libinc_min^2);
                 check = rms(res_0(:,end))^2 > tol;
+                disp([rms(res_0(:,end))^2 tol])
             else
                 check = rms(res_0(:,end))^2 > max(tol_cov*mean(diag(WS.cov)),tol_libinc_min^2);
             end

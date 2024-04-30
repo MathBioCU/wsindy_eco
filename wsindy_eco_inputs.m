@@ -1,18 +1,18 @@
 %% format data
 addpath(genpath('wsindy_obj_base'))
 
-rng(1);
+rng(1562238785);
 seed1 = rng().Seed; % seed for random generation selection, can just be pre-selected generations
 seed2 = seed1; % seed for random noise
 
-snr_X = 0.001; % noise level for X
-snr_Y = 0.005; % noise level for Y
+snr_X = 0.000; % noise level for X
+snr_Y = 0.02; % noise level for Y
 noise_alg_X = 'logn'; % noise distribution for X
 noise_alg_Y = 'logn'; % noise distribution for Y
 
 train_time_frac = 0.75; % fraction of generations observed
-subsamp_t = 1; % within-generation timescale multiplier
-num_train_inds = 18; % number of generations observed
+subsamp_t = 2; % within-generation timescale multiplier
+num_train_inds = 15; % number of generations observed
 
 test_length = 40; % number of generations to test over
 err_tol = 0.2; % tol for n_tol= number of generations for which cumulative rel err < tol
@@ -23,7 +23,7 @@ toggle_sim = 1; % toggle perform diagnostic forward simulation
 num_sim = 0; % number of out-of-sample testing simulations
 oos_std = 0.2; % std of out-of-sample ICs, uniformly randomly sampled around training IC
 toggle_vis = 1; % toggle plot diagnostics
-toggle_view_data = 1; % toggle view data before alg runs
+toggle_view_data = 0; % toggle view data before alg runs
 tol_dd_sim = 10^-10; % ODE tolerance (abs,rel) for diagnostic sim
 
 % phifun_Y = @(t)exp(-5*[1./(1-t.^2)-1]);
@@ -34,11 +34,11 @@ tf_Y_params = {'meth','FFT','param',2,'mtmin',3,'subinds',-3};% test function pa
 % tf_Y_params = {'meth','direct','param',1,'mtmin',1};% test function params
 
 WENDy_args = {'maxits_wendy',5,...
-    'lambdas',10.^linspace(-4,0,50),'alpha',0.01,...
+    'lambdas',10.^linspace(-4,-1,50),'alpha',0.01,...
     'ittol',10^-4,'diag_reg',10^-6,'verbose',0};
 autowendy = 0.95; % increment library approximate confidence interval with this confidence level 
 tol = 5; % default heuristic increment, chosen when autowendy = 0.5;
-tol_min = 0.1; % lower bound on rel. residual to increment library, in case covariance severely underestimated
+tol_min = 0.04; % lower bound on rel. residual to increment library, in case covariance severely underestimated
 tol_dd_learn = 10^-8;% ODE tolerance for forward solves in computing Y(T)
 X_var = 'true';
 
@@ -78,7 +78,7 @@ load([dr,'Gregs_mod_V=0.5.mat'],'Ycell','X','t_epi','custom_tags_X',...
     noise_alg_X,noise_alg_Y,seed1,seed2);
 
 if isequal(X_var,'true')
-    X_var = sigma_X;
+    X_var = max(sigma_X,0);
 end
 
 %% view data
