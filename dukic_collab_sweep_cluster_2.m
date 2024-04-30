@@ -125,8 +125,8 @@ for kk=1:length(snr_Ys)
 
             n_err_tol = zeros(1,num_sim+1);
             x0s = [X(1,:);mean(X_train.*nX).*(1 + sqrt(3)*oos_std*(rand(num_sim,2)-0.5)*2)];
-            Xpred_temp = cell(size(x0s,1),1);
-            Xtest_temp = cell(size(x0s,1),1);
+            X_pred_temp = cell(size(x0s,1),1);
+            X_test_temp = cell(size(x0s,1),1);
             for j=1:size(x0s,1)
                 x0 = x0s(j,:);
                 num_gen = floor(size(X,1));
@@ -153,15 +153,15 @@ for kk=1:length(snr_Ys)
                 else
                     n_err_tol(j) = n_err_tol_temp-1;
                 end
-                Xpred_temp{j} = X_pred;
-                Xtest_temp{j} = X_test;
+                X_pred_temp{j} = X_pred;
+                X_test_temp{j} = X_test;
             end
 
             results_cell{ii,jj} = [errs_2_IC,errs_inf_IC,tpr_IC,...
                 errs_2_Y,errs_inf_Y,tpr_Y,...
                 errs_2_X,errs_inf_X,tpr_X,RT,n_err_tol];
 
-            sim_cell{ii,jj} = {Xtest_temp,X_pred_temp};
+            sim_cell{ii,jj} = {X_test_temp,X_pred_temp};
     
         end
     end
