@@ -27,7 +27,9 @@ V = 0.5;%2.97; *2
 phi = 7; 
 gam = 0.3;
 % X0s = [0.007127252309866   0.018345638426356   1.000000000000000];
-X0s = [rand*0.1 rand 1];
+% X0s = [rand*0.1 rand 1];
+% X0s = [0.000004954590626   1.333716818898361 1];
+X0s = [0.007496455808268  0.000014499661094 1];
 
 tol_ode = 10^-12;
 
@@ -93,14 +95,15 @@ W_X_true = {[[0 lam];[0 0];[0 0]],[[0 -phi];[gam 0];[phi 0]]};
 
 custom_tags_Y = {[1+V zeros(1,nstates_Y-2) 1]}; %<<< decision needs to made
 custom_tags_X = {[-V 0]}; %<<< decision needs to made
-linregargs_fun_IC = @(WS){'Aineq',-WS.G{1},'bineq',zeros(size(WS.G{1},1),1)};
-linregargs_fun_Y = @(WS){};
-linregargs_fun_X = @(WS){'Aineq',-WS.G{1},'bineq',zeros(size(WS.G{1},1),1)};
 
-N = 50; UB = 0.02;
-linregargs_fun_IC = @(WS)enforce_pos_zero(WS);
-linregargs_fun_Y = @(WS)enforce_pos_zero(WS);
-linregargs_fun_X = @(WS)enforce_pos(WS,N,UB);
+% linregargs_fun_IC = @(WS){'Aineq',-WS.G{1},'bineq',zeros(size(WS.G{1},1),1)};
+% linregargs_fun_Y = @(WS){};
+% linregargs_fun_X = @(WS){'Aineq',-WS.G{1},'bineq',zeros(size(WS.G{1},1),1)};
+
+% N = 50; UB = 0.02;
+% linregargs_fun_IC = @(WS)enforce_pos_zero(WS);
+% linregargs_fun_Y = @(WS)enforce_pos_zero(WS);
+% linregargs_fun_X = @(WS)enforce_pos(WS,N,UB);
 
 linregargs_fun_IC = @(WS){};
 linregargs_fun_Y = @(WS){};
@@ -110,6 +113,21 @@ linregargs_fun_X = @(WS){};
 rhs_IC_true = @(X) rhs_IC_true(zeros(nstates_Y,1),X(:));
 [rhs_Y_true,W_Y,tags_Y_Yeq] = shorttime_map(W_Y_true,tags_Y_true,tags_X_true,ones(1,nstates_Y),ones(1,nstates_X));
 [rhs_X_true,W_X] = longtime_map(W_X_true,tags_Ext_X_true,tags_Ext_Y_true,ones(1,nstates_X),ones(1,nstates_Y));
+
+% N=5000;
+% 
+% subplot(2,1,1)
+% plot(tn(1:N)/yearlength,X(1:N,1),'b-o','linewidth',2)
+% legend({'N'})
+% xlabel('n')
+% 
+% subplot(2,1,2)
+% plot(tn(1:N)/yearlength,X(1:N,2),'b-o','linewidth',2)
+% legend({'Z'})
+% xlabel('n')
+% 
+% saveas(gcf,['~/transients_',num2str(N),'.png'])
+
 
 function out = enforce_pos(WS,N,UB,etc)
    if ~exist('etc','var')

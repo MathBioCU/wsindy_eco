@@ -1,6 +1,6 @@
 addpath(genpath('wsindy_obj_base'))
-ntrain_inds = 9:3:24;
-rngs = 1:500;
+ntrain_inds = [-3 -4 -5];
+rngs = 1:100;
 
 snr_X = 0; % noise level for X
 noise_alg_X = 'logn'; % noise distribution for X
@@ -46,8 +46,8 @@ load([dr,'Gregs_mod_V=0.5.mat'],'Ycell','X','t_epi','custom_tags_X',...
     'linregargs_fun_X','nstates_X','nstates_Y','W_IC_true','tags_IC_true',...
     'W_Y_true','tags_X_true','tags_Y_true','W_X_true','tags_Ext_X_true','tags_Ext_Y_true',...
     'rhs_IC_true','rhs_Y_true','rhs_X_true','tn','t','Y');
+[~,I] = findpeaks(X(:,1));
 
-results_cell = cell(length(ntrain_inds),length(rngs));
 for train_time_frac = [0.75] %<<< sweep over
     if train_time_frac == 0.5
         subsamp_ts = [1 2];
@@ -61,21 +61,29 @@ for train_time_frac = [0.75] %<<< sweep over
 for subsamp_t = subsamp_ts %<<< sweep over
 for kk=1:length(snr_Ys)
     snr_Y = snr_Ys(kk);
+
+    results_cell = cell(length(ntrain_inds),length(rngs));
+    sim_cell = cell(length(ntrain_inds),length(rngs));
+    maps_cell = cell(length(ntrain_inds),length(rngs));
+    coeffs_cell = cell(length(ntrain_inds),length(rngs));
+    libs_cell = cell(length(ntrain_inds),length(rngs));
+    
     for ii=1:length(ntrain_inds)
         parfor jj=1:length(rngs)
-            % if snr_Y==0
-                gensamp_seed = rngs(jj);
-            % else
-                % gensamp_seed = 2024;
-            % end
-             disp([subsamp_t kk ii jj])
-             rng(rngs(jj)); rng_seed = rng().Seed; rng(rng_seed);
-    
+            disp([subsamp_t kk ii jj])
             num_train_inds = ntrain_inds(ii);      
+
+            if num_train_inds<0
+                gensamp_seed = unique(cell2mat(arrayfun(@(i) [i-2:i+1],I(1:-num_train_inds)','uni',0)));
+            else
+                gensamp_seed = rngs(jj);
+            end
+            noise_seed = rngs(jj);
+
             %%% get data
             [Y_train,X_train,train_inds,train_time,nstates_X,nstates_Y,X_in,sigma_X,sigma_Y,nX,nY] = ...
                 format_data(Ycell,X,t_epi,subsamp_t,train_time_frac,num_train_inds,...
-                test_length,snr_X,snr_Y,noise_alg_X,noise_alg_Y,gensamp_seed,rng_seed);
+                test_length,snr_X,snr_Y,noise_alg_X,noise_alg_Y,gensamp_seed,noise_seed);
     
             tic,
             %%% run alg
@@ -85,10 +93,6 @@ for kk=1:length(snr_Ys)
                 custom_tags_X,custom_tags_Y,linregargs_fun_IC,linregargs_fun_Y,linregargs_fun_X);
             RT = toc;
 
-            maps_cell{ii,jj} = {rhs_IC,rhs_Y,rhs_X};
-            coeffs_cell{ii,jj} = {W_IC,W_Y,W_X};
-            libs_cell{ii,jj} = cellfun(@(L)cell2mat(L.tags'),{lib_Y_IC,lib_X_IC,lib_Y_Yeq,lib_X_Yeq,lib_Y_Xeq,lib_X_Xeq},'uni',0);
-    
             %%% process results
             W_IC_compare = inject_coeff_param(W_IC_true,zeros(1,nstates_Y),tags_IC_true,cell2mat(lib_Y_IC.tags'),cell2mat(lib_X_IC.tags'));
             errs_2_IC = norm(reshape([W_IC{:}]-[W_IC_compare{:}],[],1))/norm(reshape([W_IC_compare{:}],[],1));
@@ -119,7 +123,8 @@ for kk=1:length(snr_Ys)
 
             n_err_tol = zeros(1,num_sim+1);
             x0s = [X(1,:);mean(X_train.*nX).*(1 + sqrt(3)*oos_std*(rand(num_sim,2)-0.5)*2)];
-            Xpred_temp = cell(size(x0s,1),1);
+            X_pred_temp = cell(size(x0s,1),1);
+            X_test_temp = cell(size(x0s,1),1);
             for j=1:size(x0s,1)
                 x0 = x0s(j,:);
                 num_gen = floor(size(X,1));
@@ -146,16 +151,22 @@ for kk=1:length(snr_Ys)
                 else
                     n_err_tol(j) = n_err_tol_temp-1;
                 end
+                X_pred_temp{j} = X_pred;
+                X_test_temp{j} = X_test;
             end
 
             results_cell{ii,jj} = [errs_2_IC,errs_inf_IC,tpr_IC,...
                 errs_2_Y,errs_inf_Y,tpr_Y,...
                 errs_2_X,errs_inf_X,tpr_X,RT,n_err_tol];
-            % sim_cell{ii,jj} = {X_pred,Ycell_pred};
+
+            sim_cell{ii,jj} = {X_test_temp,X_pred_temp};
+            maps_cell{ii,jj} = {rhs_IC,rhs_Y,rhs_X};
+            coeffs_cell{ii,jj} = {W_IC,W_Y,W_X};
+            libs_cell{ii,jj} = cellfun(@(L)cell2mat(L.tags'),{lib_Y_IC,lib_X_IC,lib_Y_Yeq,lib_X_Yeq,lib_Y_Xeq,lib_X_Xeq},'uni',0);
     
         end
     end
-    save([dr,'sweep_snrY_',num2str(snr_Y),'_ttf_',num2str(train_time_frac),'_subt_',num2str(subsamp_t),'.mat'])
+    save([dr,'sweep_snrY_',num2str(snr_Y),'_ttf_',num2str(train_time_frac),'_subt_',num2str(subsamp_t),'_',num2str(maxits_wendy),'.mat'])
 end
 end
 end

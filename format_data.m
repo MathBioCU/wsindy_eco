@@ -9,6 +9,8 @@ function [Y_train,X_train,train_inds,train_time,nstates_X,nstates_Y,X_in,sigma_X
     end
     if isempty(seed1)
         seed1=seed2;
+    elseif length(seed1)>1
+        num_train_inds = length(seed1);
     end
 
     nstates_X = size(X,2);

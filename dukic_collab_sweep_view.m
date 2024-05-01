@@ -4,10 +4,10 @@ ylabs = {'Coefficient error ($E_2^{IC}$)',[],'True Positivity Ratio (TPR$^{IC})$
     'Coefficient error  ($E_2^{X}$)',[],'True Positivity Ratio (TPR$^{X})$','Walltime(sec)','Generations predicted ($n_{0.2}(\hat{\bf w})$)','Generations predicted ($n_{0.2}(\hat{\bf w})$)'};
 dr = '~/Dropbox/Boulder/research/data/dukic collab/';
 loadvars = {'results_cell','snr_Y','ntrain_inds','rngs'};
-subx = 1:6;
+subx = 2:2:6;
 for subt = 2
 for ttf = [0.75]
-for kk = [.05]
+for kk = [0.005 0.02 .05]
 for sind = [11] %[1 3 4 6 7 9]
 
 figure(sind);clf
@@ -19,7 +19,7 @@ figure(sind);clf
 % load([dr,'sweep_snrY_',num2str(kk),'_ttf_',num2str(ttf),'_subt_',num2str(subt),'_10-Apr-2024.mat'],loadvars{:})
 load([dr,'sweep_snrY_',num2str(kk),'_ttf_',num2str(ttf),'_subt_',num2str(subt),'.mat'],loadvars{:})
 runs = length(rngs);
-filter_fun = @(r)all([r(3)==1 r(6)==1 r(9)<=1]);
+filter_fun = @(r)all([r(3)<=1 r(6)<=1 r(9)<=1]);
 
 if isequal(subx,':')
     subx = 1:size(results_cell,1);
@@ -65,7 +65,7 @@ else
     'bw',range(log10(cell2mat(rr)))/size(results_cell,2)^(1/2),'support',[-7 2+eps],...
     'facecolor',[0 0.5 1],'plotlegend',0,'linewidth',1.7,'x',x);
 end
-set(gca,'Xtick',x)
+set(gca,'Xtick',x,'Xlim',[min(x)-mean(diff(x))/2 max(x)+mean(diff(x))/2])
 % drawnow
 
 % replaceboxes
@@ -85,7 +85,7 @@ end
 grid on
 
 % saveas(gcf,['~/Desktop/hybrid_snrY_',num2str(kk),'_ttf_',num2str(ttf),'_stat',num2str(sind),'.png'])
-saveas(gcf,['~/Desktop/hybrid_snrY_',num2str(kk),'_ttf_',num2str(ttf),'_stat',num2str(sind),'_tpr1.png'])
+saveas(gcf,['~/Desktop/hybrid_snrY_',num2str(kk),'_ttf_',num2str(ttf),'_stat',num2str(sind),'.png'])
 
 end
 end

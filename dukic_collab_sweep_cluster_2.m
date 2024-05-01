@@ -1,6 +1,6 @@
 addpath(genpath('wsindy_obj_base'))
-ntrain_inds = 9:3:24;
-rngs = 1:500;
+ntrain_inds = [-3 -4 -5];
+rngs = 1:100;
 
 snr_X = 0; % noise level for X
 noise_alg_X = 'logn'; % noise distribution for X
@@ -12,14 +12,14 @@ stop_tol = 100; % halt simulations if values exceed max observed by this multitu
 toggle_zero_crossing = 1; % halt simulations that are non-positive
 
 toggle_sim = 1; % toggle perform diagnostic forward simulation
-num_sim = 5; % number of out-of-sample testing simulations
+num_sim = 0; % number of out-of-sample testing simulations
 oos_std = 0.2; % std of out-of-sample ICs, uniformly randomly sampled around training IC
 tol_dd_sim = 10^-10; % ODE tolerance (abs,rel) for diagnostic sim
 
 phifun_Y = @(t)(1-t.^2).^9; % test function for continuous data
 tf_Y_params = {'meth','FFT','param',2,'mtmin',3,'subinds',-3};% test function params
 
-maxits_wendy = 0;
+maxits_wendy = 5;
 WENDy_args = {'maxits_wendy',maxits_wendy,...
     'lambdas',10.^linspace(-4,0,50),'alpha',0.01,...
     'ittol',10^-4,'diag_reg',10^-6,'verbose',0};
@@ -46,13 +46,14 @@ load([dr,'Gregs_mod_V=0.5.mat'],'Ycell','X','t_epi','custom_tags_X',...
     'linregargs_fun_X','nstates_X','nstates_Y','W_IC_true','tags_IC_true',...
     'W_Y_true','tags_X_true','tags_Y_true','W_X_true','tags_Ext_X_true','tags_Ext_Y_true',...
     'rhs_IC_true','rhs_Y_true','rhs_X_true','tn','t','Y');
+[~,I] = findpeaks(X(:,1));
 
 for train_time_frac = [0.75] %<<< sweep over
     if train_time_frac == 0.5
         subsamp_ts = [1 2];
     elseif train_time_frac == 0.75
         subsamp_ts = [2];
-        snr_Ys = [0.005 0.02 0.05];
+        snr_Ys = [0.01 0.05];
     elseif train_time_frac == 1
         subsamp_ts = [1 2 4 6];
         snr_Ys = [0 0.005 0.01 0.05];
@@ -69,19 +70,20 @@ for kk=1:length(snr_Ys)
     
     for ii=1:length(ntrain_inds)
         parfor jj=1:length(rngs)
-            % if snr_Y==0
-                gensamp_seed = rngs(jj);
-            % else
-                % gensamp_seed = 2024;
-            % end
-             disp([subsamp_t kk ii jj])
-             rng(rngs(jj)); rng_seed = rng().Seed; rng(rng_seed);
-    
+            disp([subsamp_t kk ii jj])
             num_train_inds = ntrain_inds(ii);      
+
+            if num_train_inds<0
+                gensamp_seed = unique(cell2mat(arrayfun(@(i) [i-2:i+1],I(1:-num_train_inds)','uni',0)));
+            else
+                gensamp_seed = rngs(jj);
+            end
+            noise_seed = rngs(jj);
+
             %%% get data
             [Y_train,X_train,train_inds,train_time,nstates_X,nstates_Y,X_in,sigma_X,sigma_Y,nX,nY] = ...
                 format_data(Ycell,X,t_epi,subsamp_t,train_time_frac,num_train_inds,...
-                test_length,snr_X,snr_Y,noise_alg_X,noise_alg_Y,gensamp_seed,rng_seed);
+                test_length,snr_X,snr_Y,noise_alg_X,noise_alg_Y,gensamp_seed,noise_seed);
     
             tic,
             %%% run alg
@@ -91,10 +93,6 @@ for kk=1:length(snr_Ys)
                 custom_tags_X,custom_tags_Y,linregargs_fun_IC,linregargs_fun_Y,linregargs_fun_X);
             RT = toc;
 
-            maps_cell{ii,jj} = {rhs_IC,rhs_Y,rhs_X};
-            coeffs_cell{ii,jj} = {W_IC,W_Y,W_X};
-            libs_cell{ii,jj} = cellfun(@(L)cell2mat(L.tags'),{lib_Y_IC,lib_X_IC,lib_Y_Yeq,lib_X_Yeq,lib_Y_Xeq,lib_X_Xeq},'uni',0);
-    
             %%% process results
             W_IC_compare = inject_coeff_param(W_IC_true,zeros(1,nstates_Y),tags_IC_true,cell2mat(lib_Y_IC.tags'),cell2mat(lib_X_IC.tags'));
             errs_2_IC = norm(reshape([W_IC{:}]-[W_IC_compare{:}],[],1))/norm(reshape([W_IC_compare{:}],[],1));
@@ -162,6 +160,9 @@ for kk=1:length(snr_Ys)
                 errs_2_X,errs_inf_X,tpr_X,RT,n_err_tol];
 
             sim_cell{ii,jj} = {X_test_temp,X_pred_temp};
+            maps_cell{ii,jj} = {rhs_IC,rhs_Y,rhs_X};
+            coeffs_cell{ii,jj} = {W_IC,W_Y,W_X};
+            libs_cell{ii,jj} = cellfun(@(L)cell2mat(L.tags'),{lib_Y_IC,lib_X_IC,lib_Y_Yeq,lib_X_Yeq,lib_Y_Xeq,lib_X_Xeq},'uni',0);
     
         end
     end

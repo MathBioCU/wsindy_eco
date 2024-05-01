@@ -75,7 +75,7 @@ if toggle_sim>0
                 fprintf(['negative values detected in X(%u) \n'],find([X_pred(n,:)]<0))
             end
             if any(Ycell_pred{n-1}(:)<0)
-                fprintf(['negative values detected in Y, %u \n'],find(Ycell_pred{n-1}(:)<0))
+                fprintf(['negative values detected in Y(%u) \n'],find(Ycell_pred{n-1}(end,:)<0))
             end
         end
         

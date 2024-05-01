@@ -1,18 +1,18 @@
 %% format data
 addpath(genpath('wsindy_obj_base'))
 
-rng(1562238785);
+rng('shuffle');
 seed1 = rng().Seed; % seed for random generation selection, can just be pre-selected generations
 seed2 = seed1; % seed for random noise
 
 snr_X = 0.000; % noise level for X
-snr_Y = 0.02; % noise level for Y
+snr_Y = 0.05; % noise level for Y
 noise_alg_X = 'logn'; % noise distribution for X
 noise_alg_Y = 'logn'; % noise distribution for Y
 
 train_time_frac = 0.75; % fraction of generations observed
 subsamp_t = 2; % within-generation timescale multiplier
-num_train_inds = 15; % number of generations observed
+num_train_inds = -5; % number of generations observed
 
 test_length = 40; % number of generations to test over
 err_tol = 0.2; % tol for n_tol= number of generations for which cumulative rel err < tol
@@ -71,7 +71,14 @@ load([dr,'Gregs_mod_V=0.5.mat'],'Ycell','X','t_epi','custom_tags_X',...
     'W_Y_true','tags_X_true','tags_Y_true','W_X_true','tags_Ext_X_true','tags_Ext_Y_true',...
     'rhs_IC_true','rhs_Y_true','rhs_X_true','tn','t','Y');
 
+% gregs_evoMod;
+
 %% format data
+
+if num_train_inds<0
+    [~,I] = findpeaks(X(:,1));
+    seed1 = unique(cell2mat(arrayfun(@(i) [i-2:i+1],I(1:-num_train_inds)','uni',0)));
+end
 
 [Y_train,X_train,train_inds,train_time,nstates_X,nstates_Y,X_in,sigma_X,sigma_Y,nX,nY] = ...
     format_data(Ycell,X,t_epi,subsamp_t,train_time_frac,num_train_inds,test_length,snr_X,snr_Y,...
