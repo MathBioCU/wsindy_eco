@@ -166,7 +166,11 @@ for kk=1:length(snr_Ys)
     
         end
     end
-    save([dr,'sweep_snrY_',num2str(snr_Y),'_ttf_',num2str(train_time_frac),'_subt_',num2str(subsamp_t),'_',num2str(maxits_wendy),'.mat'])
+    if all(ntrain_inds<0)
+        save([dr,'sweep_snrY_',num2str(snr_Y),'_ttf_',num2str(train_time_frac),'_subt_',num2str(subsamp_t),'_mits_',num2str(maxits_wendy),'_peaks.mat'])
+    else
+        save([dr,'sweep_snrY_',num2str(snr_Y),'_ttf_',num2str(train_time_frac),'_subt_',num2str(subsamp_t),'_mits_',num2str(maxits_wendy),'.mat'])
+    end
 end
 end
 end
