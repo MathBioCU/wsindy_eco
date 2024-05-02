@@ -1,6 +1,6 @@
 addpath(genpath('wsindy_obj_base'))
-ntrain_inds = [-3 -4 -5];
-rngs = 1:8;
+ntrain_inds = [12 16 20];
+rngs = 1:500;
 
 snr_X = 0; % noise level for X
 noise_alg_X = 'logn'; % noise distribution for X
@@ -167,7 +167,7 @@ for kk=1:length(snr_Ys)
         end
     end
     if all(ntrain_inds<0)
-        % save([dr,'sweep_snrY_',num2str(snr_Y),'_ttf_',num2str(train_time_frac),'_subt_',num2str(subsamp_t),'_mits_',num2str(maxits_wendy),'_peaks.mat'])
+        save([dr,'sweep_snrY_',num2str(snr_Y),'_ttf_',num2str(train_time_frac),'_subt_',num2str(subsamp_t),'_mits_',num2str(maxits_wendy),'_peaks.mat'])
     else
         save([dr,'sweep_snrY_',num2str(snr_Y),'_ttf_',num2str(train_time_frac),'_subt_',num2str(subsamp_t),'_mits_',num2str(maxits_wendy),'.mat'])
     end
