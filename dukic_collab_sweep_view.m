@@ -1,7 +1,4 @@
 %% view
-ylabs = {'Coefficient error ($E_2^{IC}$)',[],'True Positivity Ratio (TPR$^{IC})$',...
-    'Coefficient error ($E_2^{Y}$)',[],'True Positivity Ratio (TPR$^{Y})$',...
-    'Coefficient error  ($E_2^{X}$)',[],'True Positivity Ratio (TPR$^{X})$','Walltime(sec)','Generations predicted ($n_{0.2}(\hat{\bf w})$)','Generations predicted ($n_{0.2}(\hat{\bf w})$)'};
 dr = '~/Dropbox/Boulder/research/data/dukic collab/';
 loadvars = {'results_cell','snr_Y','ntrain_inds','rngs','sim_cell'};
 % peaks_ = false;subx = 2:2:6;
@@ -26,6 +23,13 @@ else
     load([dr,'sweep_snrY_',num2str(kk),'_ttf_',num2str(ttf),'_subt_',num2str(subt),'_mits_5_peaks.mat'],loadvars{:})
     x = -ntrain_inds(subx);
 end
+err_tol = 1;
+n_err_tols = cellfun(@(s) get_n_err_tol(s{2}{1},s{1}{1},err_tol) , sim_cell);
+mean(n_err_tols')
+ylabs = {'Coefficient error ($E_2^{IC}$)',[],'True Positivity Ratio (TPR$^{IC})$',...
+    'Coefficient error ($E_2^{Y}$)',[],'True Positivity Ratio (TPR$^{Y})$',...
+    'Coefficient error  ($E_2^{X}$)',[],'True Positivity Ratio (TPR$^{X})$','Walltime(sec)',...
+    ['Generations predicted ($n_{',num2str(err_tol),'}(\hat{\bf w})$)'],['Generations predicted ($n_{',num2str(err_tol),'}(\hat{\bf w})$)']};
 
 runs = length(rngs);
 filter_fun = @(r)all([r(3)<=1 r(6)<=1 r(9)<=1]);
@@ -38,9 +42,11 @@ filter_inds = cellfun(@(r)filter_fun(r),results_cell(subx,:));
 disp(['percent kept'])
 arrayfun(@(i)length(find(filter_inds(i,:)))/size(filter_inds,2),1:size(filter_inds,1))'
 
-if sind<12
+if sind<11
     res_ind = cellfun(@(r)r(sind),results_cell(subx,:));
-else
+elseif sind ==11
+    res_ind = n_err_tols;
+elseif sind ==12
     res_ind = cellfun(@(r)mean(r(sind:end)),results_cell(subx,:));
 end
 % if sind==11
