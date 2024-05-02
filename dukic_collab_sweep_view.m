@@ -3,11 +3,12 @@ ylabs = {'Coefficient error ($E_2^{IC}$)',[],'True Positivity Ratio (TPR$^{IC})$
     'Coefficient error ($E_2^{Y}$)',[],'True Positivity Ratio (TPR$^{Y})$',...
     'Coefficient error  ($E_2^{X}$)',[],'True Positivity Ratio (TPR$^{X})$','Walltime(sec)','Generations predicted ($n_{0.2}(\hat{\bf w})$)','Generations predicted ($n_{0.2}(\hat{\bf w})$)'};
 dr = '~/Dropbox/Boulder/research/data/dukic collab/';
-loadvars = {'results_cell','snr_Y','ntrain_inds','rngs'};
-subx = 2:2:6;
+loadvars = {'results_cell','snr_Y','ntrain_inds','rngs','sim_cell'};
+% peaks_ = false;subx = 2:2:6;
+peaks_ = true;subx = 1:3;
 for subt = 2
 for ttf = [0.75]
-for kk = [0.005 0.02 .05]
+for kk = [0.01 .05]
 for sind = [11] %[1 3 4 6 7 9]
 
 figure(sind);clf
@@ -17,7 +18,15 @@ figure(sind);clf
 % load([dr,'sweep_snrY_',num2str(kk),'_ttf_',num2str(ttf),'_06-Apr-2024.mat'],loadvars{:})
 % load([dr,'sweep_snrY_',num2str(kk),'_ttf_',num2str(ttf),'_07-Apr-2024.mat'],loadvars{:})
 % load([dr,'sweep_snrY_',num2str(kk),'_ttf_',num2str(ttf),'_subt_',num2str(subt),'_10-Apr-2024.mat'],loadvars{:})
-load([dr,'sweep_snrY_',num2str(kk),'_ttf_',num2str(ttf),'_subt_',num2str(subt),'.mat'],loadvars{:})
+
+if ~peaks_
+    load([dr,'sweep_snrY_',num2str(kk),'_ttf_',num2str(ttf),'_subt_',num2str(subt),'.mat'],loadvars{:})
+    x = ntrain_inds(subx);
+else
+    load([dr,'sweep_snrY_',num2str(kk),'_ttf_',num2str(ttf),'_subt_',num2str(subt),'_mits_5_peaks.mat'],loadvars{:})
+    x = -ntrain_inds(subx);
+end
+
 runs = length(rngs);
 filter_fun = @(r)all([r(3)<=1 r(6)<=1 r(9)<=1]);
 
@@ -54,7 +63,6 @@ end
 % set(h,'LineWidth',2)
 % set(h,'MarkerSize',10)
 
-x = ntrain_inds(subx);
 rr = cellfun(@(r)r',res_ind,'uni',0)';
 if ~ismember(sind,[1 4 7])
     violin(rr','kernel','box',...
@@ -73,7 +81,11 @@ set(gca,'Xtick',x,'Xlim',[min(x)-mean(diff(x))/2 max(x)+mean(diff(x))/2])
 % ylim=[0 size(X,1)-1];
 % ylabel('$n_{0.2}(\hat{\bf w})$','interpreter','latex')
 ylabel(ylabs(sind),'interpreter','latex')
-xlabel('Generations observed ($|\mathcal{I}|$)','interpreter','latex')
+if peaks_
+    xlabel('Peaks observed ($|\mathcal{I}|$)','interpreter','latex')
+else
+    xlabel('Generations observed ($|\mathcal{I}|$)','interpreter','latex')
+end
 % legend(h,['$\sigma_{NR}=',num2str(snr_Y),'$'],'interpreter','latex','location','best')
 set(gca,'Xticklabels',x,'ticklabelinterpreter','latex','fontsize',18)
 if ismember(sind,[1 4 7])
@@ -85,8 +97,11 @@ end
 grid on
 
 % saveas(gcf,['~/Desktop/hybrid_snrY_',num2str(kk),'_ttf_',num2str(ttf),'_stat',num2str(sind),'.png'])
-saveas(gcf,['~/Desktop/hybrid_snrY_',num2str(kk),'_ttf_',num2str(ttf),'_stat',num2str(sind),'.png'])
-
+if peaks_
+    saveas(gcf,['~/Desktop/hybrid_snrY_',num2str(kk),'_ttf_',num2str(ttf),'_stat',num2str(sind),'_peaks.png'])
+else
+    saveas(gcf,['~/Desktop/hybrid_snrY_',num2str(kk),'_ttf_',num2str(ttf),'_stat',num2str(sind),'.png'])
+end
 end
 end
 end

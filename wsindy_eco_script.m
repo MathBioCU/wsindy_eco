@@ -1,5 +1,4 @@
 %% load hyperparams
-
 wsindy_eco_inputs; tic;
 
 %% run alg

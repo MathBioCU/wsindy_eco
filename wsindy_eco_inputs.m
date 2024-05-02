@@ -1,7 +1,7 @@
 %% format data
 addpath(genpath('wsindy_obj_base'))
 
-rng('shuffle');
+rng(1458882794);
 seed1 = rng().Seed; % seed for random generation selection, can just be pre-selected generations
 seed2 = seed1; % seed for random noise
 
@@ -12,7 +12,7 @@ noise_alg_Y = 'logn'; % noise distribution for Y
 
 train_time_frac = 0.75; % fraction of generations observed
 subsamp_t = 2; % within-generation timescale multiplier
-num_train_inds = -5; % number of generations observed
+num_train_inds = 15; % number of generations observed
 
 test_length = 40; % number of generations to test over
 err_tol = 0.2; % tol for n_tol= number of generations for which cumulative rel err < tol

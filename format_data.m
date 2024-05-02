@@ -69,8 +69,12 @@ function [Y_train,X_train,train_inds,train_time,nstates_X,nstates_Y,X_in,sigma_X
     end
 
     nX = mean(abs(X_train));
-    X_train = X_train./nX;
     nY = mean(abs(cell2mat(Y_train)));
+
+    % nX = mean(mean(abs(X_train)))*ones(1,nstates_X);
+    % nY = mean(mean(abs(cell2mat(Y_train))))*ones(1,nstates_Y);
+
+    X_train = X_train./nX;
     Y_train = cellfun(@(x)x./nY,Y_train,'uni',0);
     sigma_X = sigma_X./nX;
     sigma_Y = cellfun(@(s)num2cell(s./nY),sigma_Y,'uni',0);
