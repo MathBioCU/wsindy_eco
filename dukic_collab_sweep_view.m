@@ -1,12 +1,12 @@
 %% view
 dr = '~/Dropbox/Boulder/research/data/dukic collab/';
 loadvars = {'results_cell','snr_Y','ntrain_inds','rngs','sim_cell'};
-% peaks_ = false;subx = 2:2:6;
+% peaks_ = false;subx = 1:3;
 peaks_ = true;subx = 1:3;
 for subt = 2
 for ttf = [0.75]
-for kk = [0.01 .05]
-for sind = [11] %[1 3 4 6 7 9]
+for kk = [.01 .05]
+for sind = [4 7 9 12] %[1 3 4 6 7 9]
 
 figure(sind);clf
 
@@ -17,13 +17,14 @@ figure(sind);clf
 % load([dr,'sweep_snrY_',num2str(kk),'_ttf_',num2str(ttf),'_subt_',num2str(subt),'_10-Apr-2024.mat'],loadvars{:})
 
 if ~peaks_
-    load([dr,'sweep_snrY_',num2str(kk),'_ttf_',num2str(ttf),'_subt_',num2str(subt),'.mat'],loadvars{:})
+    % load([dr,'sweep_snrY_',num2str(kk),'_ttf_',num2str(ttf),'_subt_',num2str(subt),'.mat'],loadvars{:})
+    load([dr,'sweep_snrY_',num2str(kk),'_ttf_',num2str(ttf),'_subt_',num2str(subt),'_mits_5.mat'],loadvars{:})
     x = ntrain_inds(subx);
 else
     load([dr,'sweep_snrY_',num2str(kk),'_ttf_',num2str(ttf),'_subt_',num2str(subt),'_mits_5_peaks.mat'],loadvars{:})
     x = -ntrain_inds(subx);
 end
-err_tol = 1;
+err_tol = 0.5;
 n_err_tols = cellfun(@(s) get_n_err_tol(s{2}{1},s{1}{1},err_tol) , sim_cell);
 mean(n_err_tols')
 ylabs = {'Coefficient error ($E_2^{IC}$)',[],'True Positivity Ratio (TPR$^{IC})$',...
@@ -88,7 +89,7 @@ set(gca,'Xtick',x,'Xlim',[min(x)-mean(diff(x))/2 max(x)+mean(diff(x))/2])
 % ylabel('$n_{0.2}(\hat{\bf w})$','interpreter','latex')
 ylabel(ylabs(sind),'interpreter','latex')
 if peaks_
-    xlabel('Peaks observed ($|\mathcal{I}|$)','interpreter','latex')
+    xlabel('Peaks observed ($|\mathcal{I}|/4$)','interpreter','latex')
 else
     xlabel('Generations observed ($|\mathcal{I}|$)','interpreter','latex')
 end
@@ -142,6 +143,28 @@ figure(1);clf
 histogram(res_ind,20)
 
 
+%%
+
+dr = '~/Dropbox/Boulder/research/data/dukic collab/';
+kk = 0.01; ttf = 0.75; subt = 2;
+loadvars = {'results_cell','snr_Y','ntrain_inds','rngs','sim_cell','coeffs_cell','libs_cell'};
+load([dr,'sweep_snrY_',num2str(kk),'_ttf_',num2str(ttf),'_subt_',num2str(subt),'_mits_5_peaks.mat'],loadvars{:})
+
+subx = 2; sind = 9;
+res_ind = cellfun(@(r)r(sind),results_cell(subx,:));
+inds = find(res_ind<1);
+inds_1 = find(res_ind==1);
+
+coeff_ref = coeffs_cell{subx,inds_1(1)}{end};
+
+coeffs = cellfun(@(c)c{end},coeffs_cell(subx,inds),'uni',0);
+libs = cellfun(@(c)c(end-1:end),libs_cell(subx,inds),'uni',0);
+for coord = 1:2
+    coeffs_coord = cellfun(@(c)c{coord},coeffs,'un',0);
+    coeff_ref{coord}
+    mean(cat(3,coeffs_coord{:}),3)
+end
+libs{1}{:}
 % Q = quantile(res_ind,3,2);
 % y = Q(:,2);
 % y_l = Q(:,1);

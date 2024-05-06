@@ -1,10 +1,11 @@
 %% get samples
-n=200;
+n= 200;
 X_pred_cloud = cell(n,1);
-x0 = X(1,:);
+x0 = X_test(1,:);
 
 parfor j=1:n
     rng('shuffle')
+    disp(j)
     W_IC_s = wendy_hybrid_sample(W_IC,CovW_IC);
     W_Y_s = wendy_hybrid_sample(W_Y,CovW_Y);
     W_X_s = wendy_hybrid_sample(W_X,CovW_X);
@@ -21,11 +22,12 @@ parfor j=1:n
         stop_tol*max(max(cell2mat(Y_train)./nY)));    
 end
 
-%% view 
+%% quick view 
+
 figure(1);clf
 hold on
 cellfun(@(x)semilogy(x(:,1),'b'),X_pred_cloud)
-plot(X(:,1),'linewidth',3,'color','red')
+plot(X_test(:,1),'linewidth',3,'color','red')
 plot(X_pred(:,1),'linewidth',3,'color','green')
 set(gca,'Yscale','log')
 legend('X_1')
@@ -35,115 +37,99 @@ saveas(gcf,['~/Desktop/X1_cloud_',num2str(snr_Y),'.png'])
 figure(2);clf
 hold on
 cellfun(@(x)semilogy(x(:,2),'b'),X_pred_cloud)
-plot(X(:,2),'linewidth',3,'color','red')
+plot(X_test(:,2),'linewidth',3,'color','red')
 plot(X_pred(:,2),'linewidth',3,'color','green')
 set(gca,'Yscale','log')
 legend('X_2')
 hold off
-saveas(gcf,['~/Desktop/X2_cloud_',num2str(snr_Y),'.png'])
 
-%%
+%% get inter-peak distributions
+
+close all;
+clz = {[1 0.6 0.3],[0 0.6 1],[0.6 0.6 0.6]};
+legs = {{'IPD distrib','True IPD','Mean IPD'}, {'Amp distrib','True Amp','Mean Amp'} };
+for ind = 1:2
+IPD = [];
+Amps = [];
+max_gen_cap = 80;
+[A_true,IPD_true] = findpeaks(X(1:max_gen_cap,ind));
+IPD_true = mean(diff(IPD_true));
+A_true = mean(A_true);
+for j=1:n
+    if length(X_pred_cloud{j}(:,ind))>=3
+        [A,I] = findpeaks(X_pred_cloud{j}(1:min(max_gen_cap,end),ind));
+        IPD = [IPD;diff(I)];
+        Amps = [Amps;A];
+    end
+end
+if ind==1
+figure(1+2*(ind-1));
+[h,xi] = ksdensity(IPD);
+fill(xi,h,clz{3},'linewidth',2,'FaceAlpha',0.4) ;
+hold on
+plot(IPD_true*[1 1],[0 max(h)],'linewidth',2)
+plot(mean(IPD)*[1 1],[0 max(h)],'linewidth',2)
+legend(legs{1})
+hold off
+end
+
+figure(2+2*(ind-1));
+[h,xi] = ksdensity(Amps);
+fill(xi,h,clz{ind},'linewidth',2,'FaceAlpha',0.4) ;
+hold on
+plot(A_true*[1 1],[0 max(h)],'linewidth',2)
+plot(mean(Amps)*[1 1],[0 max(h)],'linewidth',2)
+legend(legs{2})
+hold off
+end
+
+%% cloud plot
+dr = '~/Dropbox/Boulder/research/data/dukic collab/';
+% load([dr,'UQ_plots_correct_model_snry05.mat'])
+ind = 1;
 X_ext = cellfun(@(X)[X;NaN*ones(81-size(X,1),nstates_X)],X_pred_cloud,'Un',0);
 clf
 xbins = linspace(-7,0,50);
-Nmin = 6;
-Nmax = size(X_pred,1);
-
+Nmin = 1;
+Nmax = 21;%size(X_pred,1);
+upper_thresh =100; 
 figure(1);clf
 hold on
-cellfun(@(x)plot(log10(x(1:size(x,1),1)),0:size(x,1)-1,'linewidth',0.5,'color',[0.8 0.8 0.8]),X_pred_cloud)
+cellfun(@(x)plot(log10(x(1:size(x,1),ind)),0:size(x,1)-1,'linewidth',0.5,'color',[0.8 0.8 0.8]),X_pred_cloud)
 gap = 2;
 for j=Nmax:-gap:Nmin
-    dat = log10(cellfun(@(X)X(j,1),X_ext));
-    xi = linspace(mean(dat)-4*std(dat),mean(dat)+4*std(dat),50);
-    [h,xi] = ksdensity(dat);
-    if j==Nmin
-        ff = max(h);
-    end
+    dat = cellfun(@(X)X(j,ind),X_ext);
+    dat = dat(~isnan(dat));
+    dat = dat(dat>=0);
+    dat = log10(dat);
+    % dat = dat(dat<upper_thresh);
+    % xi = linspace(nanmean(dat)-4*nanstd(dat),nanmean(dat)+4*nanstd(dat),50);
+    [h,xi] = ksdensity(dat(~isnan(dat)));
     % [h,e] = histcounts(log10(dat),xbins,'normalization','pdf');
-    fill(xi,h/ff*gap*20+j-1,[1 0.6 0.3],'linewidth',2) 
+    fill(xi,h/9*gap*6+j-1,[1 0.6 0.3],'linewidth',2) ;
     hold on
 end
-% plot(log10(X(:,1)),0:80,'ro-',log10(X_pred(:,1)),0:Nmax-1,'g--','linewidth',4,'markersize',12)
-plot(log10(X(:,1)),0:80,'ro-','linewidth',4,'markersize',12)
-ylim([Nmin 25])
+hh=plot(log10(X_test(:,ind)),0:80,'go-',log10(X_pred(1:Nmax+1,ind)),0:Nmax,'b--','linewidth',4,'markersize',12);
+% plot(log10(X(:,1)),0:80,'ro-','linewidth',4,'markersize',12)
+legend(hh,{'true model output','learned model output'},'location','sw','interpreter','latex');
+ylim([Nmin-1 Nmax])
 % grid on
 view([90 -90])
 
 
-set(gca,'Xtick',-6:2:2,'Xticklabels',num2str(10.^(-8:2:1)','%0.0e'),'Xlim',[-8 8])
-xlabel('Host density ($N_n$)','interpreter','latex')
+set(gca,'Xtick',-16:2:16,'Xticklabels',num2str(10.^(-16:2:16)','%0.0e'),'Xlim',[-14 6])
+if ind == 1
+    xlabel('Host density ($N_n$)','interpreter','latex')
+else
+    xlabel('Path. density ($Z_n$)','interpreter','latex')
+end
 ylabel('Generation ($n$)','interpreter','latex')
 set(gca,'ticklabelinterpreter','latex','fontsize',18)
+set(gcf,'position',[1970         232        1249         689])
 % grid on
 
-saveas(gcf,['~/Desktop/cloud_density.png'])
+saveas(gcf,['~/Desktop/cloud_density_uncorrected_red_model.png'])
 %% view conf int
+
 varget = 'Y';
-if varget=='X'
-w = W_X;
-w_true = W_X_compare;
-C = CovW_X;
-elseif varget=='Y'
-w = W_Y;
-w_true = W_Y_compare;
-C = CovW_Y;
-end    
-figure(3);clf
-[w_hat,ss] = wendy_param(w);
-[w_hat_true,ss_true] = wendy_param(w_true);
-xflip = [1:length(w_hat) length(w_hat):-1:1];
-c = 0.05; % <(100)c chance of not containing true val
-stdW = max(sqrt(diag(C)),eps);
-conf_int = arrayfun(@(x)norminv(1 - c/2,0,x),stdW);
-h1=plot(1:length(w_hat),w_hat,'ro');hold on
-for j=1:length(w_hat)
-    gg = 0.4;
-    fill([j-gg j+gg j+gg j-gg],[w_hat(j)-conf_int(j) w_hat(j)-conf_int(j)  w_hat(j)+conf_int(j) w_hat(j)+conf_int(j)],...
-        'w','linewidth',1.5);
-    line([j-gg j+gg],[w_hat(j) w_hat(j)],'color','r','linewidth',3)
-    if j<=length(ss{1})
-        [~,jj] = ismember(ss{1}(j),ss_true{1});
-        if jj>0
-            plot(j,w_hat_true(jj),'*','color','green','linewidth',3,'markersize',15)
-        end
-    else
-        [~,jj] = ismember(ss{2}(j-length(ss{1})),ss_true{2});
-        if jj>0
-            plot(j,w_hat_true(length(ss_true{1})+jj),'*','color','green','linewidth',3,'markersize',15)
-            % legend('true vals')
-        end        
-    end
-end
-
-hold off
-hh = get(gca,'children');
-legend(hh([3 2 1]),{[num2str((1-c)*100),'% CI'],'learned val.','true val.'},'fontsize',20,'location','bestoutside','interpreter','latex')
-set(gca,'Xtick',1:length(w_hat))
-xlabel(['$\widehat{\bf w}^',varget,'$'],'interpreter','latex')
-xlim([0 length(w_hat)+1])
-grid on
-
-set(gca,'Xticklabels',arrayfun(@(i)['$w_',num2str(i),'$'],1:length(w_hat),'Un',0))
-% xlabel('Host density ($N_n$)','interpreter','latex')
-% ylabel('Generation ($n$)','interpreter','latex')
-set(gca,'ticklabelinterpreter','latex','fontsize',24)
-saveas(gcf,['~/Desktop/conf_int_',varget,'_',num2str(snr_Y),'.png'])
-
-
-function [W_p,ss] = wendy_param(W)
-    W_p = cell2mat(cellfun(@(w)w(:),W,'Un',0));
-    W_p = W_p(W_p~=0);
-    ss = cellfun(@(w)find(w),W,'Un',0);
-end
-
-function W_s = wendy_hybrid_sample(W,C)
-    [W_p,ss] = wendy_param(W);
-    W_samp = mvnrnd(W_p,C);
-    W_s = W;
-    ind = 0;
-    for j=1:length(W)
-        W_s{j}(ss{j}) = W_samp(ind+1:ind+length(ss{j}));
-        ind = ind + length(ss{j});
-    end
-end
+view_conf_int;

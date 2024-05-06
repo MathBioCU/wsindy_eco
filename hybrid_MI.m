@@ -20,7 +20,6 @@ function [rhs,W,WS,lib_param,MSTLS_loss,lambda_hat,W_its,res_WENDy,res_0,CovW] =
         tags_param = get_tags(polys_param,[],n_param);
         lib_param.add_terms(tags_param);
         lib = kron_lib(lib_state,lib_param);
-        E = eye(n_state+n_param);
         WS = wsindy_model(Uobj,lib,tf,'lhsterms', lhs);
         WS.cat_Gb('cat','blkdiag');
         linregargs = linregargs_fun(WS);

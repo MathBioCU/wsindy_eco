@@ -7,8 +7,14 @@ function [Y_train,X_train,train_inds,train_time,nstates_X,nstates_Y,X_in,sigma_X
     if ~exist('seed2','var')
         seed2='shuffle';
     end
+
+    if seed1 < 0
+        [~,I] = findpeaks(X(:,1));
+        seed1 = unique(cell2mat(arrayfun(@(i) max([i-num_train_inds:i+num_train_inds-1],1),I(1:-seed1)','uni',0)));
+    end
+
     if isempty(seed1)
-        seed1=seed2;
+        seed1 = seed2;
     elseif length(seed1)>1
         num_train_inds = length(seed1);
     end
