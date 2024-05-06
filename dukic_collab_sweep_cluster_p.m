@@ -1,7 +1,11 @@
+% ntrain_inds = [-3 -4 -5];
+% peak_width = 3;
+% rngs = 1:200;
+% snr_Ys = [0.01];
+% train_time_frac = 0.75;
+% subsamp_ts = 2;
+
 addpath(genpath('wsindy_obj_base'))
-ntrain_inds = [-3 -4 -5];
-seed1 = 3;
-rngs = 1:200;
 
 snr_X = 0; % noise level for X
 noise_alg_X = 'logn'; % noise distribution for X
@@ -49,17 +53,6 @@ load([dr,'Gregs_mod_V=0.5.mat'],'Ycell','X','t_epi','custom_tags_X',...
     'rhs_IC_true','rhs_Y_true','rhs_X_true','tn','t','Y');
 [~,I] = findpeaks(X(:,1));
 
-for train_time_frac = [0.75] %<<< sweep over
-    if train_time_frac == 0.5
-        subsamp_ts = [1 2];
-    elseif train_time_frac == 0.75
-        subsamp_ts = [2];
-        snr_Ys = [0.01];
-    elseif train_time_frac == 1
-        subsamp_ts = [1 2 4 6];
-        snr_Ys = [0 0.005 0.01 0.05];
-    end
-for subsamp_t = subsamp_ts %<<< sweep over
 for kk=1:length(snr_Ys)
     snr_Y = snr_Ys(kk);
 
@@ -75,7 +68,7 @@ for kk=1:length(snr_Ys)
             num_train_inds = ntrain_inds(ii);      
 
             if num_train_inds<0
-                gensamp_seed = unique(cell2mat(arrayfun(@(i) [i-2:i+1],I(1:-num_train_inds)','uni',0)));
+                gensamp_seed = peak_width;
             else
                 gensamp_seed = rngs(jj);
             end
@@ -172,8 +165,6 @@ for kk=1:length(snr_Ys)
     else
         save([dr,'sweep_snrY_',num2str(snr_Y),'_ttf_',num2str(train_time_frac),'_subt_',num2str(subsamp_t),'_mits_',num2str(maxits_wendy),'.mat'])
     end
-end
-end
 end
 
 function [value, isterminal, direction] = myEvent(T, Y, thresh, toggle_zero_crossing)

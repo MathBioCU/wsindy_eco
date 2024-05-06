@@ -2,7 +2,7 @@ addpath(genpath('wsindy_obj_base'))
 rng('shuffle');
 
 %% data hyperparameters
-seed1 = -4;   % seed for random generation selection, can just be pre-selected generations
+seed1 = 3;   % seed for random generation selection, can just be pre-selected generations
 seed2 = 2024;
 % seed2 = rng().Seed; % seed for random noise
 snr_X = 0.000; % noise level for X
@@ -10,7 +10,7 @@ snr_Y = 0.01; % noise level for Y
 noise_alg_X = 'logn'; % noise distribution for X
 noise_alg_Y = 'logn'; % noise distribution for Y
 
-num_train_inds = 2; % number of generations observed / number of gens around each peak
+num_train_inds = -4; % number of generations observed / number of gens around each peak
 train_time_frac = 0.75; % fraction of generations observed
 subsamp_t = 2; % within-generation timescale multiplier
 

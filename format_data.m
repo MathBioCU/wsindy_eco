@@ -8,9 +8,9 @@ function [Y_train,X_train,train_inds,train_time,nstates_X,nstates_Y,X_in,sigma_X
         seed2='shuffle';
     end
 
-    if seed1 < 0
+    if num_train_inds < 0
         [~,I] = findpeaks(X(:,1));
-        seed1 = unique(cell2mat(arrayfun(@(i) max([i-num_train_inds:i+num_train_inds-1],1),I(1:-seed1)','uni',0)));
+        seed1 = unique(cell2mat(arrayfun(@(i) max([i-seed1:i+seed1-1],1),I(1:-num_train_inds)','uni',0)));
     end
 
     if isempty(seed1)
