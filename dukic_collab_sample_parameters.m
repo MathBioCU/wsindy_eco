@@ -85,13 +85,13 @@ end
 
 %% cloud plot
 dr = '~/Dropbox/Boulder/research/data/dukic collab/';
-% load([dr,'UQ_plots_correct_model_snry05.mat'])
+load([dr,'UQ_plots_correct_model_snry05.mat'])
 ind = 1;
 X_ext = cellfun(@(X)[X;NaN*ones(81-size(X,1),nstates_X)],X_pred_cloud,'Un',0);
 clf
 xbins = linspace(-7,0,50);
-Nmin = 1;
-Nmax = 21;%size(X_pred,1);
+Nmin = 20;
+Nmax = 60;%size(X_pred,1);
 upper_thresh =100; 
 figure(1);clf
 hold on
@@ -106,7 +106,7 @@ for j=Nmax:-gap:Nmin
     % xi = linspace(nanmean(dat)-4*nanstd(dat),nanmean(dat)+4*nanstd(dat),50);
     [h,xi] = ksdensity(dat(~isnan(dat)));
     % [h,e] = histcounts(log10(dat),xbins,'normalization','pdf');
-    fill(xi,h/9*gap*6+j-1,[1 0.6 0.3],'linewidth',2) ;
+    fill(xi,h/9*gap*9+j-1,[1 0.6 0.3],'linewidth',2) ;
     hold on
 end
 hh=plot(log10(X_test(:,ind)),0:80,'go-',log10(X_pred(1:Nmax+1,ind)),0:Nmax,'b--','linewidth',4,'markersize',12);
@@ -128,7 +128,7 @@ set(gca,'ticklabelinterpreter','latex','fontsize',18)
 set(gcf,'position',[1970         232        1249         689])
 % grid on
 
-saveas(gcf,['~/Desktop/cloud_density_uncorrected_red_model.png'])
+% saveas(gcf,['~/Desktop/cloud_density_snrY01.png'])
 %% view conf int
 
 varget = 'Y';

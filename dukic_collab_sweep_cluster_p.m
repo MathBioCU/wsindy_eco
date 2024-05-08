@@ -1,9 +1,9 @@
 % ntrain_inds = [-3 -4 -5];
 % peak_width = 3;
 % rngs = 1:200;
-% snr_Ys = [0.01];
+% snr_Ys = 0.01;
 % train_time_frac = 0.75;
-% subsamp_ts = 2;
+% subsamp_t = 2;
 
 addpath(genpath('wsindy_obj_base'))
 

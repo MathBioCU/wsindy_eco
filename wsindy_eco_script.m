@@ -10,7 +10,7 @@ snr_Y = 0.01; % noise level for Y
 noise_alg_X = 'logn'; % noise distribution for X
 noise_alg_Y = 'logn'; % noise distribution for Y
 
-num_train_inds = -4; % number of generations observed / number of gens around each peak
+num_train_inds = -3; % number of generations observed / number of gens around each peak
 train_time_frac = 0.75; % fraction of generations observed
 subsamp_t = 2; % within-generation timescale multiplier
 
