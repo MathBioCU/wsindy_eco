@@ -60,5 +60,5 @@ grid on
 set(gca,'Xticklabels',arrayfun(@(i)['$w_',num2str(i),'$'],1:length(w_hat),'Un',0))
 % xlabel('Host density ($N_n$)','interpreter','latex')
 % ylabel('Generation ($n$)','interpreter','latex')
-set(gca,'ticklabelinterpreter','latex','fontsize',24)
+set(gca,'ticklabelinterpreter','latex','fontsize',20)
 saveas(gcf,['~/Desktop/conf_int_',varget,'_',num2str(snr_Y),'.png'])

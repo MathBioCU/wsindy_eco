@@ -1,4 +1,5 @@
 % close all;
+n = size(X_pred,1);
 x_cl = 'ko'; % colors for true data
 y_cl = [0.4660 0.6740 0.1880]; % colors for true data
 xL_cl = 'ko'; % colors for learned data
@@ -19,11 +20,11 @@ for j=1:nstates_X
     figure((j-1)*nstates_X+2)
     h0=plot(tn_test(1:n),X_test(1:n,j),x_cl, ...
         t_test, Y_test(:,j),yearlength*[n_err_tol]*[1 1],ylims{j},'k--','linewidth',3,'markersize',7);
+     set(h0(2),'color',y_cl)
      set(gca,'ticklabelinterpreter','latex','fontsize',20,...
         'Xtick',yearlength*floor(linspace(0,max(n-1,1),min(n,5))),...
         'XtickLabels',floor(linspace(0,max(n-1,1),min(n,5))),...
         'Yscale',yscl,'Ylim',ylims{j},'Ytick',yticks{j},'Xlim',[0 yearlength*max(n-1,1)])
-     set(h0(2),'color',y_cl)
      grid on
     % if j==1
     % end
@@ -103,7 +104,7 @@ for k=ks'
     xlim([0 56])
     grid on;
     set(gca,'ticklabelinterpreter','latex','fontsize',16,'Xtick',[0:7:56],'Yscale','log')
-        legend({'true data','observed data'},'location','best','interpreter','latex','fontsize',16)
+        legend({'true model output','observed data'},'location','best','interpreter','latex','fontsize',16)
      set(h0,'color',y_cl)
 end
 saveas(gcf,['~/Desktop/hybrid_sol_data_zoom',num2str(j),'_',num2str(snr_Y),'_rng',num2str(seed1),'.png'])

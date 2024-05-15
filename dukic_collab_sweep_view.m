@@ -1,13 +1,13 @@
 %% view
-dr = '~/Desktop/';%
-% dr = '~/Dropbox/Boulder/research/data/dukic collab/';
+% dr = '~/Desktop/';%
+dr = '~/Dropbox/Boulder/research/data/dukic collab/';
 loadvars = {'results_cell','snr_Y','ntrain_inds','rngs','sim_cell'};
-peaks_ = false;subx = 1:3;
-% peaks_ = true;subx = 1:3;
+% peaks_ = false;subx = 1:3;
+peaks_ = true;subx = 1:3;
 for subt = 2
 for ttf = [0.75]
 for kk = [.05]
-for sind = [7 9 11] %[1 3 4 6 7 9]
+for sind = [1 3 4 6 7 9 11] %[1 3 4 6 7 9]
 
 figure(sind);clf
 
@@ -28,6 +28,7 @@ end
 err_tol = 0.5;
 n_err_tols = cellfun(@(s) get_n_err_tol(s{2}{1},s{1}{1},err_tol) , sim_cell);
 mean(n_err_tols')
+median(n_err_tols')
 ylabs = {'Coefficient error ($E_2^{IC}$)',[],'True Positivity Ratio (TPR$^{IC})$',...
     'Coefficient error ($E_2^{Y}$)',[],'True Positivity Ratio (TPR$^{Y})$',...
     'Coefficient error  ($E_2^{X}$)',[],'True Positivity Ratio (TPR$^{X})$','Walltime(sec)',...

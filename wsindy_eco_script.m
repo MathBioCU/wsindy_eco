@@ -6,7 +6,7 @@ seed1 = 3;   % seed for random generation selection, can just be pre-selected ge
 seed2 = 2024;
 % seed2 = rng().Seed; % seed for random noise
 snr_X = 0.000; % noise level for X
-snr_Y = 0.01; % noise level for Y
+snr_Y = 0.05; % noise level for Y
 noise_alg_X = 'logn'; % noise distribution for X
 noise_alg_Y = 'logn'; % noise distribution for Y
 
@@ -53,7 +53,7 @@ toggle_sim = 1; % toggle perform diagnostic forward simulation
 num_sim = 0; % number of out-of-sample testing simulations
 oos_std = 0.2; % std of out-of-sample ICs, uniformly randomly sampled around training IC
 toggle_vis = 1; % toggle plot diagnostics
-toggle_view_data = 1; % toggle view data before alg runs
+toggle_view_data = 0; % toggle view data before alg runs
 tol_dd_sim = 10^-10; % ODE tolerance (abs,rel) for diagnostic sim
 
 %% get data
