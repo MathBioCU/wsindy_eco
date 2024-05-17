@@ -19,20 +19,19 @@ X_mod{:}
 figure(1);clf
 varget = 'IC';
 view_conf_int;
+IC_prune = find(abs(w_hat)<0.25*conf_int);
 
 figure(2);clf
 varget = 'Y';
 view_conf_int;
+Y_prune = find(abs(w_hat)<0.25*conf_int);
 
 figure(3);clf
 varget = 'X';
 view_conf_int;
+X_prune = find(abs(w_hat)<0.25*conf_int);
 
 %% decide on terms to prune
-
-IC_prune = [];
-Y_prune = [4 7];
-X_prune = [];
 
 W_IC_sparse = zero_ents(W_IC,IC_prune);
 W_Y_sparse = zero_ents(W_Y,Y_prune);

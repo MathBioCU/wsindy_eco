@@ -4,10 +4,11 @@
 % snr_Ys = 0.01;
 % train_time_frac = 0.75;
 % subsamp_t = 2;
+% snr_X = 0;
+% maxits_wendy = 5;
 
 addpath(genpath('wsindy_obj_base'))
 
-snr_X = 0; % noise level for X
 noise_alg_X = 'logn'; % noise distribution for X
 noise_alg_Y = 'logn'; % noise distribution for Y
 
@@ -16,20 +17,18 @@ err_tol = 0.2; % tol for n_tol= number of generations for which cumulative rel e
 stop_tol = 100; % halt simulations if values exceed max observed by this multitude
 toggle_zero_crossing = 1; % halt simulations that are non-positive
 
-toggle_sim = 1; % toggle perform diagnostic forward simulation
+tol_dd_sim = 10^-10; % ODE tolerance (abs,rel) for diagnostic sim
 num_sim = 0; % number of out-of-sample testing simulations
 oos_std = 0.2; % std of out-of-sample ICs, uniformly randomly sampled around training IC
-tol_dd_sim = 10^-10; % ODE tolerance (abs,rel) for diagnostic sim
 
 phifun_Y = @(t)(1-t.^2).^9; % test function for continuous data
 tf_Y_params = {'meth','FFT','param',2,'mtmin',3,'subinds',-3};% test function params
 
-maxits_wendy = 5;
 WENDy_args = {'maxits_wendy',maxits_wendy,...
     'lambdas',10.^linspace(-4,0,50),'alpha',0.01,...
     'ittol',10^-4,'diag_reg',10^-6,'verbose',0};
 autowendy = 0.95; % increment library approximate confidence interval with this confidence level 
-X_var = [];
+X_var = 'True';
 tol = 5; % default heuristic increment, chosen when autowendy = 0.5;
 tol_min = 0.1; % lower bound on rel. residual to increment library, in case covariance severely underestimated
 tol_dd_learn = 10^-8;% ODE tolerance for forward solves in computing Y(T)

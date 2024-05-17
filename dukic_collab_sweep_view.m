@@ -1,13 +1,13 @@
 %% view
-% dr = '~/Desktop/';%
-dr = '~/Dropbox/Boulder/research/data/dukic collab/';
+dr = '~/Desktop/';%
+% dr = '~/Dropbox/Boulder/research/data/dukic collab/';
 loadvars = {'results_cell','snr_Y','ntrain_inds','rngs','sim_cell'};
-% peaks_ = false;subx = 1:3;
-peaks_ = true;subx = 1:3;
+peaks_ = false;subx = 1:3;
+% peaks_ = true;subx = 1:3;
 for subt = 2
 for ttf = [0.75]
 for kk = [.05]
-for sind = [1 3 4 6 7 9 11] %[1 3 4 6 7 9]
+for sind = [7 9 11] %[1 3 4 6 7 9]
 
 figure(sind);clf
 

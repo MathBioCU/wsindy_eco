@@ -6,6 +6,11 @@ function [rhs_IC,W_IC,rhs_Y,W_Y,rhs_X,W_X,...
     wendy_eco_fcn(toggle_zero_crossing,stop_tol,phifun_Y,tf_Y_params,WENDy_args,autowendy,tol_dd_learn,...
         Y_train,X_train,X_var,train_inds,train_time,t_epi,yearlength,nstates_X,nstates_Y,X_in,nX,nY,...
         tags_IC_X,tags_Y_Yeq,tags_X_Yeq,tags_X_Xeq,tags_Y_Xeq,W_IC_sparse,W_Y_sparse,W_X_sparse)
+
+
+    if isempty(X_var)
+        X_var = X_train*0;
+    end
     
     %%% get wsindy_data 
     Uobj_Y = cellfun(@(x,t)wsindy_data(x,t),Y_train,train_time);

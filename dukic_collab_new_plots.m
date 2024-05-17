@@ -1,7 +1,7 @@
 dr = '~/Dropbox/Boulder/research/data/dukic collab/';
-% load([dr,'UQ_plots_snrY01.mat'])
+load([dr,'UQ_plots_snrY01.mat'])
 % load([dr,'UQ_plots_correct_model_snry05.mat'])
-load([dr,'UQ_plots_uncorrected_red_model.mat'])
+% load([dr,'UQ_plots_uncorrected_red_model.mat'])
 % load([dr,'UQ_plots_corrected_red_model.mat'])
 %% get inter-peak distributions
 nstates =2;
