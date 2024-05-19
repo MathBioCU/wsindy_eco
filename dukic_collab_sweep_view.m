@@ -7,7 +7,7 @@ peaks_ = false;subx = 1:3;
 for subt = 2
 for ttf = [0.75]
 for kk = [.05]
-for sind = [7 9 11] %[1 3 4 6 7 9]
+for sind = 11;%[1 3 4 6 7 9 11]
 
 figure(sind);clf
 

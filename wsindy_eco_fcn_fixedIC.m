@@ -2,23 +2,24 @@
 %%% Xeq assumed to be power-law in X and Y, fixed lib for X, incremental lib for Y
 %%% Yeq assumed to be power-law in X and Y, fixed lib for Y, incremental for X
 
-function [rhs_IC,W_IC,rhs_Y,W_Y,rhs_X,W_X,...
-    lib_Y_IC,lib_X_IC,lib_Y_Yeq,lib_X_Yeq,lib_Y_Xeq,lib_X_Xeq,...
-    WS_IC,WS_Yeq,WS_Xeq,...
-    CovW_IC,CovW_Y,CovW_X,...
+function [rhs_Y,W_Y,rhs_X,W_X,...
+   lib_Y_Yeq,lib_X_Yeq,lib_Y_Xeq,lib_X_Xeq,...
+    WS_Yeq,WS_Xeq,...
+    CovW_Y,CovW_X,...
     errs_Yend,...
-    loss_IC,loss_Y,loss_X]= ...
-    wsindy_eco_fcn(toggle_zero_crossing,stop_tol,phifun_Y,tf_Y_params,WENDy_args,autowendy,tol,tol_min,tol_dd_learn,pmax_IC,polys_Y_Yeq,polys_X_Xeq,pmax_X_Yeq,pmax_Y_Xeq,neg_Y,neg_X,boolT,...
+    loss_Y,loss_X]= ...
+    wsindy_eco_fcn_fixedIC(toggle_zero_crossing,stop_tol,phifun_Y,tf_Y_params,...
+    WENDy_args,autowendy,tol,tol_min,tol_dd_learn,polys_Y_Yeq,polys_X_Xeq,pmax_X_Yeq,pmax_Y_Xeq,neg_Y,boolT,...
         Y_train,X_train,X_var,train_inds,train_time,t_epi,yearlength,nstates_X,nstates_Y,X_in,nX,nY,...
-        custom_tags_X,custom_tags_Y,linregargs_fun_IC,linregargs_fun_Y,linregargs_fun_X)
-
+        custom_tags_X,custom_tags_Y,linregargs_fun_Y,linregargs_fun_X,rhs_IC,use_true_IC,X)
 
     if isempty(X_var)
         X_var = X_train*0;
     end
 
     addpath(genpath('wsindy_obj_base'))
-    %% get wsindy_data 
+
+%%% get wsindy_data 
     Uobj_Y = cellfun(@(x,t)wsindy_data(x,t),Y_train,train_time);
     Uobj_tot = arrayfun(@(i)...
         wsindy_data([[Uobj_Y(i).Uobs{:}] repmat(X_train(X_in(i),:),Uobj_Y(i).dims,1)],train_time{i}),(1:length(Uobj_Y))');
@@ -27,30 +28,9 @@ function [rhs_IC,W_IC,rhs_Y,W_Y,rhs_X,W_X,...
         Uobj_tot(j).sigmas(nstates_Y+1:end) = num2cell(X_var(X_in(j),:));
     end
 
-    IC = zeros(max(train_inds),nstates_Y+nstates_X);
-    IC(train_inds,nstates_Y+1:end) = X_train;
-    IC(train_inds(X_in),1:nstates_Y) = cell2mat(arrayfun(@(U)cellfun(@(x)x(1,:),U.Uobs),Uobj_Y,'uni',0));
-    Uobj_IC = wsindy_data(IC,0:max(train_inds)-1);
-    if autowendy>0
-        S = arrayfun(@(U)cell2mat(U.estimate_sigma).^2,Uobj_Y,'uni',0);
-        IC_cov = IC*0; 
-        IC_cov(train_inds(X_in),1:nstates_Y) = cell2mat(S);
-        IC_cov(train_inds(X_in),nstates_Y+1:end) = X_var(X_in,:).^2;
-        Uobj_IC.R0 = spdiags(IC_cov(:),0,numel(IC_cov),numel(IC_cov));
-    end
     E = eye(nstates_Y+nstates_X);
-    
-%% get IC_map
-    lib_Y_IC = library('tags',zeros(1,nstates_Y));
-    lib_X_IC = library();
-    tf_IC = testfcn(Uobj_IC,'meth','direct','param',0,'phifuns','delta','mtmin',0,'subinds',train_inds(X_in));
-    lhs_IC = arrayfun(@(i)term('ftag',E(i,:)),(1:nstates_Y)','uni',0);
-    [rhs_IC,W_IC,WS_IC,lib_X_IC,loss_IC,lambda_IC,W_its_IC,res_IC,res_0_IC,CovW_IC] = ...
-        hybrid_MI(pmax_IC,lib_Y_IC,lib_X_IC,nstates_Y,nstates_X,Uobj_IC,tf_IC,lhs_IC,...
-                    WENDy_args,linregargs_fun_IC,autowendy,tol,tol_min,nY,nX);
-    rhs_IC = @(X) rhs_IC(zeros(nstates_Y,1),X(:));
-    
-%% get parametric small scale model
+        
+%%% get parametric small scale model
     tf_Yeq = arrayfun(@(U)testfcn(U,tf_Y_params{:},'phifuns',phifun_Y),Uobj_Y,'uni',0);
     lib_Y_Yeq = library('tags',custom_tags_Y,'polys',polys_Y_Yeq,'neg',neg_Y,'boolT',boolT,'nstates',nstates_Y); % library
     lib_X_Yeq = library('tags',custom_tags_X);
@@ -59,16 +39,20 @@ function [rhs_IC,W_IC,rhs_Y,W_Y,rhs_X,W_X,...
         hybrid_MI(pmax_X_Yeq,lib_Y_Yeq,lib_X_Yeq,nstates_Y,nstates_X,Uobj_tot,tf_Yeq,lhs_Yeq,...
                     WENDy_args,linregargs_fun_Y,autowendy,tol,tol_min,nY,nX);
     
-%% get Y(T)
+%%% get Y(T)
     X_sub = find(diff(train_inds)==1);
     subinds = train_inds(X_sub);
     Yend = zeros(length(X_sub),nstates_Y);
-    X_n = X_train(X_sub,:);
+    if ~isequal(use_true_IC,'true')
+        X_n = X_train(X_sub,:).*nX;
+    else
+        X_n = X(train_inds(X_sub),:);
+    end
     errs_Yend = []; Y_new = {}; Y_ns = cell(length(X_sub),2);
     for n=1:length(X_sub)
         options_ode_sim = odeset('RelTol',tol_dd_learn,'AbsTol',tol_dd_learn*ones(1,nstates_Y),'Events',@(T,Y)myEvent(T,Y,stop_tol*max(max(cell2mat(Y_train))),toggle_zero_crossing));
-        rhs_learned = @(y)rhs_Y(y,X_n(n,:).*nX);
-        Y0 = rhs_IC(X_n(n,:).*nX);
+        rhs_learned = @(y)rhs_Y(y,X_n(n,:));
+        Y0 = rhs_IC(X_n(n,:));
         t_train = t_epi{train_inds(X_sub(n))}([1 end]);
         [t_n,Y_n,TE]=ode15s(@(t,x)rhs_learned(x),t_train,Y0,options_ode_sim);
         Y_ns(n,:) = {Y_n,t_n};
@@ -99,7 +83,7 @@ function [rhs_IC,W_IC,rhs_Y,W_Y,rhs_X,W_X,...
     end
     Yend = Yend./nY;
 
-%% get large scale model
+%%% get large scale model
     X_Yend = zeros(max(train_inds),nstates_X+nstates_Y);
     X_Yend(train_inds,1:nstates_X) = X_train;
     % Tends = cellfun(@(t)t(end),t_epi(subinds));
@@ -119,6 +103,5 @@ function [rhs_IC,W_IC,rhs_Y,W_Y,rhs_X,W_X,...
     lhs = arrayfun(@(i)term('ftag',E(i,:),'linOp',1),(1:nstates_X)','uni',0);
     [rhs_X,W_X,WS_Xeq,lib_Y_Xeq,loss_X,lambda_X,w_its,res_X,res_0_X,CovW_X] = ...
         hybrid_MI(pmax_Y_Xeq,lib_X_Xeq,lib_Y_Xeq,nstates_X,nstates_Y,Uobj_X_Yend,tf_X,lhs,WENDy_args,linregargs_fun_X,autowendy,tol,tol_min,nX,nY);
-
 
 end
