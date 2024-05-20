@@ -1,7 +1,7 @@
-% ntrain_inds = [-3 -4 -5];
-% peak_width = 3;
-% rngs = 1:200;
-% snr_Ys = 0.01;
+% ntrain_inds = [-5];
+% peak_width = 2;
+% rngs = 1:100;
+% snr_Ys = 0.1*2.^(-5:0);
 % snr_X = 0;
 % train_time_frac = 0.75;
 % subsamp_t = 2;
@@ -28,7 +28,7 @@ WENDy_args = {'maxits_wendy',maxits_wendy,...
     'lambdas',10.^linspace(-4,0,50),'alpha',0.01,...
     'ittol',10^-4,'diag_reg',10^-6,'verbose',0};
 autowendy = 0.95; % increment library approximate confidence interval with this confidence level 
-X_var = 'True';
+toggle_X_var = 'true';
 tol = 5; % default heuristic increment, chosen when autowendy = 0.5;
 tol_min = 0.1; % lower bound on rel. residual to increment library, in case covariance severely underestimated
 tol_dd_learn = 10^-8;% ODE tolerance for forward solves in computing Y(T)
@@ -62,7 +62,7 @@ for kk=1:length(snr_Ys)
     libs_cell = cell(length(ntrain_inds),length(rngs));
     
     for ii=1:length(ntrain_inds)
-        parfor jj=1:length(rngs)
+        for jj=1:length(rngs)
             disp([subsamp_t kk ii jj])
             num_train_inds = ntrain_inds(ii);      
 
@@ -77,7 +77,11 @@ for kk=1:length(snr_Ys)
             [Y_train,X_train,train_inds,train_time,nstates_X,nstates_Y,X_in,sigma_X,sigma_Y,nX,nY] = ...
                 format_data(Ycell,X,t_epi,subsamp_t,train_time_frac,num_train_inds,...
                 test_length,snr_X,snr_Y,noise_alg_X,noise_alg_Y,gensamp_seed,noise_seed);
-    
+            if isequal(toggle_X_var,'true')
+                X_var = max(sigma_X,0);
+            else
+                X_var = [];
+            end
             tic,
             %%% run alg
             [rhs_IC,W_IC,rhs_Y,W_Y,rhs_X,W_X,lib_Y_IC,lib_X_IC,lib_Y_Yeq,lib_X_Yeq,lib_Y_Xeq,lib_X_Xeq] = ...

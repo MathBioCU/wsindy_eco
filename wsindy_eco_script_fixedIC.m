@@ -3,8 +3,8 @@ rng('shuffle');
 
 %%% data hyperparameters
 seed1 = 2;   % seed for random generation selection, can just be pre-selected generations
-seed2 = 2;
-% seed2 = rng().Seed; % seed for random noise
+seed2 = 2;   % seed for random noise
+% seed2 = rng().Seed; 
 snr_X = 0.005; % noise level for X
 snr_Y = 0.05; % noise level for Y
 noise_alg_X = 'logn'; % noise distribution for X
