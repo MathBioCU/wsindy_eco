@@ -2,9 +2,9 @@
 % peak_width = 3;
 % rngs = 1:200;
 % snr_Ys = 0.01;
+% snr_X = 0;
 % train_time_frac = 0.75;
 % subsamp_t = 2;
-% snr_X = 0;
 % maxits_wendy = 5;
 
 addpath(genpath('wsindy_obj_base'))

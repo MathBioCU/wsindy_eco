@@ -3,7 +3,7 @@ rng('shuffle');
 
 %%% data hyperparameters
 seed1 = 2;   % seed for random generation selection, can just be pre-selected generations
-seed2 = randi(10^9);
+seed2 = 2;
 % seed2 = rng().Seed; % seed for random noise
 snr_X = 0.005; % noise level for X
 snr_Y = 0.05; % noise level for Y
@@ -21,20 +21,20 @@ phifun_Y = @(t)(1-t.^2).^9; % test function for continuous data
 tf_Y_params = {'meth','FFT','param',2,'mtmin',3,'subinds',-3};% test function params
 
 WENDy_args = {'maxits_wendy',5,...
-    'lambdas',10.^linspace(-4,-1,50),'alpha',0.01,...
+    'lambdas',10.^linspace(-4,0,50),'alpha',0.01,...
     'ittol',10^-4,'diag_reg',10^-6,'verbose',0};
 autowendy = 0.95; % increment library approximate confidence interval with this confidence level 
 tol = 5; % default heuristic increment, chosen when autowendy = 0.5;
 tol_min = 0.1; % lower bound on rel. residual to increment library, in case covariance severely underestimated
-tol_dd_learn = 10^-10;% ODE tolerance for forward solves in computing Y(T)
-X_var = 'true';
-use_true_IC = 'true';  'false';
+tol_dd_learn = 10^-8;% ODE tolerance for forward solves in computing Y(T)
+toggle_X_var = 'true';
+use_true_IC = 'true';
 
 pmax_IC = 4; % max poly degree for IC solve
 polys_Y_Yeq = 0:3; % Y library for Yeq solve
 pmax_X_Yeq = 4; % max poly degree for X terms in Yeq solve
 polys_X_Xeq = 0:2; % X library in Xeq solve
-pmax_Y_Xeq = 3; % max poly degree for Y terms in Xeq solve
+pmax_Y_Xeq = 4; % max poly degree for Y terms in Xeq solve
 neg_Y = 0; % toggle use negative powers for X terms in Yeq
 neg_X = 0; % toggle use negative powers for Y terms in Xeq
 boolT = @(T)all([min(T,[],2)>=-2 sum(T,2)>=-2 max(T,[],2)<4],2); % restrict poly terms in Yeq
@@ -65,18 +65,18 @@ load([dr,'Gregs_mod_V=0.5.mat'],'Ycell','X','t_epi','custom_tags_X',...
     'linregargs_fun_X','nstates_X','nstates_Y','W_IC_true','tags_IC_true',...
     'W_Y_true','tags_X_true','tags_Y_true','W_X_true','tags_Ext_X_true','tags_Ext_Y_true',...
     'rhs_IC_true','rhs_Y_true','rhs_X_true','tn','t','Y','sig_tmax');
-% gregs_evoMod;
-
 rhs_IC = rhs_IC_true;
 
 %%% format data
 [Y_train,X_train,train_inds,train_time,nstates_X,nstates_Y,X_in,sigma_X,sigma_Y,nX,nY] = ...
-    format_data(Ycell,X,t_epi,subsamp_t,train_time_frac,num_train_inds,test_length,snr_X,snr_Y,...
-    noise_alg_X,noise_alg_Y,seed1,seed2);
+    format_data(Ycell,X,t_epi,subsamp_t,train_time_frac,num_train_inds,...
+    test_length,snr_X,snr_Y,noise_alg_X,noise_alg_Y,seed1,seed2);
 num_gen = size(X,1)-1;
 num_t_epi = length(t_epi{1});
-if isequal(X_var,'true')
+if isequal(toggle_X_var,'true')
     X_var = max(sigma_X,0);
+else
+    X_var = [];
 end
 if toggle_view_data==1 %%% view data
     for j=1:nstates_X
@@ -89,7 +89,6 @@ end
 
 %%% run alg
 tic;
-
 [rhs_Y,W_Y,rhs_X,W_X,...
    lib_Y_Yeq,lib_X_Yeq,lib_Y_Xeq,lib_X_Xeq,...
     WS_Yeq,WS_Xeq,...
@@ -100,7 +99,6 @@ tic;
     WENDy_args,autowendy,tol,tol_min,tol_dd_learn,polys_Y_Yeq,polys_X_Xeq,pmax_X_Yeq,pmax_Y_Xeq,neg_Y,boolT,...
         Y_train,X_train,X_var,train_inds,train_time,t_epi,yearlength,nstates_X,nstates_Y,X_in,nX,nY,...
         custom_tags_X,custom_tags_Y,linregargs_fun_Y,linregargs_fun_X,rhs_IC,use_true_IC,X);
-
 fprintf('\n runtime: %2.3f \n',toc)
 
 %%% compare coefficients

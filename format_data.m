@@ -1,5 +1,6 @@
 function [Y_train,X_train,train_inds,train_time,nstates_X,nstates_Y,X_in,sigma_X,sigma_Y,nX,nY] = ...
-    format_data(Ycell,X,t_epi,subsamp_t,train_time_frac,num_train_inds,test_length,snr_X,snr_Y,noise_alg_X,noise_alg_Y,seed1,seed2)
+    format_data(Ycell,X,t_epi,subsamp_t,train_time_frac,num_train_inds,...
+    test_length,snr_X,snr_Y,noise_alg_X,noise_alg_Y,seed1,seed2)
 
     if ~exist('seed1','var')
         seed1='shuffle';
@@ -37,7 +38,7 @@ function [Y_train,X_train,train_inds,train_time,nstates_X,nstates_Y,X_in,sigma_X
     train_time = cellfun(@(t)t(1:subsamp_t:floor(end*train_time_frac)),t_epi(X_in),'uni',0);
     X_in = find(ismember(train_inds,X_in));
 
-    rng(seed2)
+    rng(seed2,'twister')
     if isequal(noise_alg_X,'AWGN')
         sigma_X = snr_X*std(X_train);
         X_train = X_train+sigma_X.*randn(size(X_train));
@@ -48,7 +49,7 @@ function [Y_train,X_train,train_inds,train_time,nstates_X,nstates_Y,X_in,sigma_X
         % expsig = fzero(@(x)x.^4-2*x+1-snr_X^2,[1,2^(1/3)]);
         % sig = sqrt(log(expsig)*2);
         % sigma_X = sig+rms(X_train)*0;
-        % X_train = X_train.*exp(sigma_X.*randn(size(X_train)));
+        % X_train = X_train.*exp(sigma_X.*randn(size(X_train)));        
         sigma_X = repmat(snr_X*rms(X_train),size(X_train,1),1);
         if snr_X>0
             X_train = X_train.^2./sqrt(X_train.^2+rms(X_train).^2*snr_X^2).*exp(sqrt(log(1+rms(X_train).^2./X_train.^2*snr_X^2)).*randn(size(X_train)));

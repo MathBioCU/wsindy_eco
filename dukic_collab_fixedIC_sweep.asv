@@ -60,12 +60,11 @@ for kk=1:length(snr_Ys)
     results_cell = cell(length(ntrain_inds),length(rngs));
     sim_cell = cell(length(ntrain_inds),length(rngs));
     maps_cell = cell(length(ntrain_inds),length(rngs));
-    mods_cell = cell(length(ntrain_inds),length(rngs));
     coeffs_cell = cell(length(ntrain_inds),length(rngs));
     libs_cell = cell(length(ntrain_inds),length(rngs));
     
     for ii=1:length(ntrain_inds)
-        for jj=1:length(rngs)
+        parfor jj=1:length(rngs)
             disp([subsamp_t kk ii jj])
             num_train_inds = ntrain_inds(ii);      
 
@@ -161,7 +160,6 @@ for kk=1:length(snr_Ys)
             sim_cell{ii,jj} = {X_test_temp,X_pred_temp};
             maps_cell{ii,jj} = {rhs_Y,rhs_X};
             coeffs_cell{ii,jj} = {W_Y,W_X};
-            mods_cell{ii,jj} = {WS_Yeq,WS_Xeq};
             libs_cell{ii,jj} = cellfun(@(L)cell2mat(L.tags'),{lib_Y_Yeq,lib_X_Yeq,lib_Y_Xeq,lib_X_Xeq},'uni',0);
     
         end
