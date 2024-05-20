@@ -62,7 +62,7 @@ for kk=1:length(snr_Ys)
     libs_cell = cell(length(ntrain_inds),length(rngs));
     
     for ii=1:length(ntrain_inds)
-        for jj=1:length(rngs)
+        parfor jj=1:length(rngs)
             disp([subsamp_t kk ii jj])
             num_train_inds = ntrain_inds(ii);      
 
