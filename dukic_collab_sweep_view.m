@@ -4,7 +4,7 @@ dr = '~/Desktop/';%
 loadvars = {'results_cell','snr_Y','ntrain_inds','rngs','sim_cell'};
 % peaks_ = false;subx = 1:3;
 peaks_ = true;subx = 1:3;
-peaks_ = true;subx = 1;
+% peaks_ = true;subx = 1;
 for subt = 2
 for ttf = [0.75]
 for kk = [.05]
@@ -23,8 +23,8 @@ if ~peaks_
     load([dr,'sweep_snrY_',num2str(kk),'_ttf_',num2str(ttf),'_subt_',num2str(subt),'_mits_5.mat'],loadvars{:})
     x = ntrain_inds(subx);
 else
-    % load([dr,'sweep_snrY_',num2str(kk),'_ttf_',num2str(ttf),'_subt_',num2str(subt),'_mits_5_peaks.mat'],loadvars{:})
-    load([dr,'sweep_snrY_',num2str(kk),'_ttf_',num2str(ttf),'_subt_',num2str(subt),'_mits_5_peaks_IC.mat'],loadvars{:})
+    load([dr,'sweep_snrY_',num2str(kk),'_ttf_',num2str(ttf),'_subt_',num2str(subt),'_mits_5_peaks.mat'],loadvars{:})
+    % load([dr,'sweep_snrY_',num2str(kk),'_ttf_',num2str(ttf),'_subt_',num2str(subt),'_mits_5_peaks_IC.mat'],loadvars{:})
     x = -ntrain_inds(subx);
 end
 err_tol = 0.5;

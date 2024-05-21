@@ -6,11 +6,11 @@ seed1 = 2;   % seed for random generation selection, can just be pre-selected ge
 % seed2 = randi(10^9);
 % seed2 = rng().Seed; % seed for random noise
 snr_X = 0.000; % noise level for X
-snr_Y = 0.05; % noise level for Y
+snr_Y = 0.01; % noise level for Y
 noise_alg_X = 'logn'; % noise distribution for X
 noise_alg_Y = 'logn'; % noise distribution for Y
 
-num_train_inds = -3; % number of generations observed / number of gens around each peak
+num_train_inds = -5; % number of generations observed / number of gens around each peak
 train_time_frac = 0.75; % fraction of generations observed
 subsamp_t = 2; % within-generation timescale multiplier
 
@@ -23,7 +23,7 @@ tf_Y_params = {'meth','FFT','param',2,'mtmin',3,'subinds',-3};% test function pa
 % tf_Y_params = {'meth','direct','param',1,'mtmin',1};% test function params
 
 WENDy_args = {'maxits_wendy',5,...
-    'lambdas',10.^linspace(-4,-1,50),'alpha',0.01,...
+    'lambdas',10.^linspace(-4,0,50),'alpha',0.01,...
     'ittol',10^-4,'diag_reg',10^-6,'verbose',0};
 autowendy = 0.95; % increment library approximate confidence interval with this confidence level 
 tol = 5; % default heuristic increment, chosen when autowendy = 0.5;
@@ -35,7 +35,7 @@ pmax_IC = 4; % max poly degree for IC solve
 polys_Y_Yeq = 0:3; % Y library for Yeq solve
 pmax_X_Yeq = 4; % max poly degree for X terms in Yeq solve
 polys_X_Xeq = 0:2; % X library in Xeq solve
-pmax_Y_Xeq = 3; % max poly degree for Y terms in Xeq solve
+pmax_Y_Xeq = 4; % max poly degree for Y terms in Xeq solve
 neg_Y = 0; % toggle use negative powers for X terms in Yeq
 neg_X = 0; % toggle use negative powers for Y terms in Xeq
 boolT = @(T)all([min(T,[],2)>=-2 sum(T,2)>=-2 max(T,[],2)<4],2); % restrict poly terms in Yeq
