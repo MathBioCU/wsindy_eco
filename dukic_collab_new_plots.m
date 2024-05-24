@@ -1,6 +1,6 @@
 dr = '~/Dropbox/Boulder/research/data/dukic collab/';
-load([dr,'UQ_plots_snrY01.mat'])
-% load([dr,'UQ_plots_correct_model_snry05.mat'])
+% load([dr,'UQ_plots_snrY01.mat'])
+load([dr,'UQ_plots_correct_model_snry05.mat'])
 % load([dr,'UQ_plots_uncorrected_red_model.mat'])
 % load([dr,'UQ_plots_corrected_red_model.mat'])
 %% get inter-peak distributions
@@ -87,7 +87,7 @@ for j=1:nstates
         'Yscale',yscl,'Ylim',ylims{j},'Ytick',yticks{j},'Xlim',[0 yearlength*max(n-1,1)])
     grid on;
 
-    legend([h0(2);h2(2);h3],{'true model output','learned model output','95% CI'},'location','sw','interpreter','latex','fontsize',16)
+    legend([h0(2);h2(2);h3],{'true model output','learned model output','95% CR'},'location','sw','interpreter','latex','fontsize',16)
     if j==1
         ylabel(['host $(S,N)$'],'interpreter','latex')
     else
