@@ -24,8 +24,8 @@ AIC = 2*num_param+r
 %%
 dr = '~/Dropbox/Boulder/research/data/dukic collab/';
 % load([dr,'UQ_plots_snrY01.mat'])
-% load([dr,'UQ_plots_correct_model_snry05.mat'])
-load([dr,'UQ_plots_uncorrected_red_model.mat'])
+load([dr,'UQ_plots_correct_model_snry05.mat'])c
+% load([dr,'UQ_plots_uncorrected_red_model.mat'])
 % load([dr,'UQ_plots_corrected_red_model.mat'])
 
 %% get inter-peak distributions
@@ -257,7 +257,7 @@ set(gca,'Xticklabels',arrayfun(@(i)['$w_',num2str(i),'$'],1:length(w_hat),'Un',0
 set(gca,'ticklabelinterpreter','latex','fontsize',16)
 end
 hh = get(gca,'children');
-legend(hh([3 2 1]),{[num2str((1-c)*100),'% CI'],'learned val.','true val.'},'location','bestoutside','interpreter','latex')
+legend(hh([2 1 3]),{'true val.','learned val.',[num2str((1-c)*100),'% CI']},'location','bestoutside','interpreter','latex')
 set(gcf,'pos',[900 539 1100 250]);
 saveas(gcf,['~/Desktop/conf_int_',num2str(snr_Y),'.png'])
 
