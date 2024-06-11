@@ -84,41 +84,46 @@ hold off
 end
 
 %% cloud plot
+
 dr = '~/Dropbox/Boulder/research/data/dukic collab/';
 % load([dr,'UQ_plots_correct_model_snry05.mat'])
-load([dr,'UQ_plots_uncorrected_red_model.mat'])
+% load([dr,'UQ_plots_uncorrected_red_model.mat'])
 ind = 1;
-X_ext = cellfun(@(X)[X;NaN*ones(81-size(X,1),nstates_X)],X_pred_cloud,'Un',0);
+X_ext = cellfun(@(X)[X;NaN*ones(num_gen-size(X,1),nstates_X)],X_pred_cloud,'Un',0);
 clf
-xbins = linspace(-7,0,50);
-Nmin = 1;
-Nmax = 22;%size(X_pred,1);
-upper_thresh =100; 
+Nmin = 20;
+Nmax = 30;num_gen;%size(X_pred,1);
+gap = 1;
+toggle_same_height = 0;
+
 figure(1);clf
 hold on
-cellfun(@(x)plot(log10(x(1:size(x,1),ind)),0:size(x,1)-1,'linewidth',0.5,'color',[0.8 0.8 0.8]),X_pred_cloud)
-gap = 2;
+cellfun(@(x)plot(log10(x(:,ind)),0:size(x,1)-1,'linewidth',0.5,'color',[0.8 0.8 0.8]),X_pred_cloud)
 for j=Nmax:-gap:Nmin
-    dat = cellfun(@(X)X(j,ind),X_ext);
-    dat = dat(~isnan(dat));
-    dat = dat(dat>=0);
-    dat = log10(dat);
-    % dat = dat(dat<upper_thresh);
-    % xi = linspace(nanmean(dat)-4*nanstd(dat),nanmean(dat)+4*nanstd(dat),50);
-    [h,xi] = ksdensity(dat(~isnan(dat)));
-    % [h,e] = histcounts(log10(dat),xbins,'normalization','pdf');
-    fill(xi,h/9*gap*9+j-1,[1 0.6 0.3],'linewidth',2) ;
-    hold on
+    if j~=1 % don't plot IC, will be delta
+        dat = cellfun(@(X)X(j,ind),X_ext);
+        dat = dat(~isnan(dat)); dat = dat(dat>=0);
+        dat = log10(dat);
+        [h,xi] = ksdensity(dat(~isnan(dat)));
+        if toggle_same_height==1
+            hm = gap/max(h);
+        else
+            if j==Nmax
+                hm = gap/max(h)/5;
+            end
+        end
+        fill(xi,h*hm+j-1,[1 0.6 0.3],'linewidth',2) ;
+        hold on
+    end
 end
-hh=plot(log10(X_test(:,ind)),0:80,'go-',log10(X_pred(1:Nmax+1,ind)),0:Nmax,'b--','linewidth',4,'markersize',12);
-% plot(log10(X(:,1)),0:80,'ro-','linewidth',4,'markersize',12)
+hh=plot(log10(X_test(:,ind)),0:num_gen-1,'go-',log10(X_pred(:,ind)),0:size(X_pred,1)-1,'b--','linewidth',4,'markersize',12);
 legend(hh,{'true model output','learned model output'},'location','sw','interpreter','latex');
 ylim([Nmin-1 Nmax])
-% grid on
 view([90 -90])
 
-
-set(gca,'Xtick',-16:2:16,'Xticklabels',num2str(10.^(-16:2:16)','%0.0e'),'Xlim',[-14 6])
+Xall = cell2mat(X_pred_cloud); Xall = Xall(:,ind);
+xr = log10(min(Xall,[],'omitnan'))-1:2:log10(max(Xall,[],'omitnan'))+1;
+set(gca,'Xtick',xr,'Xticklabels',num2str(10.^xr','%0.0e'))
 if ind == 1
     xlabel('Host density ($N_n$)','interpreter','latex')
 else
@@ -127,10 +132,9 @@ end
 ylabel('Generation ($n$)','interpreter','latex')
 set(gca,'ticklabelinterpreter','latex','fontsize',18)
 set(gcf,'position',[1970         232        1249         689])
-% grid on
 
-saveas(gcf,['~/Desktop/cloud_density_uncorrected_red_model.png'])
+% saveas(gcf,['~/Desktop/cloud_density_uncorrected_red_model.png'])
 %% view conf int
 
-varget = 'Y';
+varget = 'X';
 view_conf_int;

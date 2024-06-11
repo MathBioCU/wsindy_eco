@@ -5,7 +5,7 @@ yL_cl = 'c--';% colors for learned data
 xO_cl = 'ko';% colors for observed data
 yO_cl = 'r'; % colors for observed data
 if toggle_zero_crossing
-    ylims = arrayfun(@(j)[0.1*min([X_pred(:,j);X_test(:,j)]) 10*max([X_pred(:,j);X_test(:,j)])],1:nstates_X,'uni',0);
+    ylims = arrayfun(@(j)[0.1*min([X_pred_cell{jj}(:,j);X_test(:,j)]) 10*max([X_pred(:,j);X_test(:,j)])],1:nstates_X,'uni',0);
     yticks = arrayfun(@(j)10.^(floor(log10(max(ylims{j}(1),eps))):2:ceil(log10(ylims{j}(2)))),1:nstates_X,'uni',0);
     YS = 'log';
 else

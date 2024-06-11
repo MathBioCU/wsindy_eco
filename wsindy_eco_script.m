@@ -6,11 +6,11 @@ seed1 = 2;   % seed for random generation selection, can be pre-selected generat
 seed2 = randi(10^9); % seed for random noise 
 % seed2 = rng().Seed; % uncomment to save seed for reproducibility
 snr_X = 0.000; % noise level for X
-snr_Y = 0.01; % noise level for Y
+snr_Y = 0.02; % noise level for Y
 noise_alg_X = 'logn'; % noise distribution for X
 noise_alg_Y = 'logn'; % noise distribution for Y
 
-num_train_inds = -4; % number of generations observed / number of gens around each peak (if negative)
+num_train_inds = -3; % number of generations observed / number of gens around each peak (if negative)
 train_time_frac = 0.75; % fraction of each generation observed
 subsamp_t = 2; % within-generation timescale multiplier
 
@@ -52,11 +52,12 @@ test_length = 40; % number of generations to test over
 err_tol = 0.5; % tol for n_tol= number of generations for which cumulative rel err < tol
 stop_tol = 100; % halt simulations if values exceed max observed by this multitude
 toggle_sim = 1; % toggle perform diagnostic forward simulation
-num_sim = 0; % number of out-of-sample testing simulations
+num_sim = 3; % number of out-of-sample testing simulations
 oos_std = 0.5; % std of out-of-sample ICs, uniformly randomly sampled around training IC
 toggle_vis = 1; % toggle plot diagnostics
 toggle_view_data = 1; % toggle view data before alg runs
 tol_dd_sim = 10^-10; % ODE tolerance (abs,rel) for diagnostic sim
+yscl = 'log';
 
 %% get data
 dr = '/home/danielmessenger/Dropbox/Boulder/research/data/dukic collab/';
@@ -64,7 +65,7 @@ dr = '/home/danielmessenger/Dropbox/Boulder/research/data/dukic collab/';
 warning('off','MATLAB:dispatcher:UnresolvedFunctionHandle')
 load([dr,'Gregs_mod_V=0.5.mat'],'Ycell','X','t_epi','custom_tags_X',...
     'yearlength','custom_tags_Y','linregargs_fun_IC','linregargs_fun_Y',...
-    'linregargs_fun_X','nstates_X','nstates_Y','W_IC_true','tags_IC_true',...
+    'linregargs_fun_X','W_IC_true','tags_IC_true',...
     'W_Y_true','tags_X_true','tags_Y_true','W_X_true','tags_Ext_X_true','tags_Ext_Y_true',...
     'rhs_IC_true','rhs_Y_true','rhs_X_true','tn','t','Y','sig_tmax');
 % gregs_evoMod;
@@ -84,7 +85,6 @@ if toggle_view_data==1 %%% view data
         plot(tn,X(:,j),'b-.',t,Y(:,j),'r-',(train_inds-1)*yearlength,X_train(:,j)*nX(j),'kx','linewidth',3,'markersize',10)
         legend({'X','Y','I'})
     end
-    pause
 end
 
 %% run alg

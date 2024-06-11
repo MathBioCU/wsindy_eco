@@ -57,8 +57,9 @@ oos_std = 0.5; % std of out-of-sample ICs, uniformly randomly sampled around tra
 toggle_vis = 1; % toggle plot diagnostics
 toggle_view_data = 1; % toggle view data before alg runs
 tol_dd_sim = 10^-10; % ODE tolerance (abs,rel) for diagnostic sim
+yscl = 'linear';
 
-%% format data
+%% format data: Ycell,X,t_epi,
 [Y_train,X_train,train_inds,train_time,nstates_X,nstates_Y,X_in,sigma_X,sigma_Y,nX,nY] = ...
     format_data(Ycell,X,t_epi,subsamp_t,train_time_frac,num_train_inds,test_length,snr_X,snr_Y,...
     noise_alg_X,noise_alg_Y,seed1,seed2);
