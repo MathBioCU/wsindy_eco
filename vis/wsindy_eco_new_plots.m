@@ -48,19 +48,19 @@ end
 
 mus_P = []; mus_A = [];
 for ind = 1:nstates
-for peak_num = 1:max(len(:))
-    dat = cellfun(@(t)t(peak_num),PD(len(:,ind)>=peak_num,ind));
-    % mus_P(peak_num,ind)= (mean(dat)-1)*yearlength;
-    stds_P(peak_num,ind)= std(dat)*yearlength;
-    mus_P(peak_num,ind)= (10.^mean(log10(dat))-1)*yearlength;
-    % stds_P(peak_num,ind)= 10.^std(log10(dat))*yearlength;
-
-    dat = cellfun(@(t)t(peak_num),AM(len(:,ind)>=peak_num,ind));
-    % mus_A(peak_num,ind)= mean(dat);
-    stds_A(peak_num,ind)= std(dat);
-    mus_A(peak_num,ind)= 10.^mean(log10(dat));
-    % stds_A(peak_num,ind)= 10.^std(log10(dat));
-end
+    for peak_num = 1:max(len(:))
+        dat = cellfun(@(t)t(peak_num),PD(len(:,ind)>=peak_num,ind));
+        % mus_P(peak_num,ind)= (mean(dat)-1)*yearlength;
+        stds_P(peak_num,ind)= std(dat)*yearlength;
+        mus_P(peak_num,ind)= (10.^mean(log10(dat))-1)*yearlength;
+        % stds_P(peak_num,ind)= 10.^std(log10(dat))*yearlength;
+    
+        dat = cellfun(@(t)t(peak_num),AM(len(:,ind)>=peak_num,ind));
+        % mus_A(peak_num,ind)= mean(dat);
+        stds_A(peak_num,ind)= std(dat);
+        mus_A(peak_num,ind)= 10.^mean(log10(dat));
+        % stds_A(peak_num,ind)= 10.^std(log10(dat));
+    end
 end
 
 %% examine specific peak stats

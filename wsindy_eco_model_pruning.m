@@ -1,5 +1,5 @@
 %% run wsindy_eco_fcn
-wsindy_eco_script;
+wsindy_eco_script_manu;
 
 %% display models
 

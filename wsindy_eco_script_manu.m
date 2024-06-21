@@ -1,8 +1,9 @@
-addpath(genpath('wsindy_obj_base'))
+folder = fileparts(which(mfilename)); 
+addpath(genpath(folder));
 rng('shuffle');
 
 %% data hyperparameters
-seed1 = 2;   % seed for random generation selection, can be pre-selected generations, or half-width for peak sampling
+seed1 = randi(10^9);   % seed for random generation selection, can be pre-selected generations, or half-width for peak sampling
 seed2 = randi(10^9); % seed for random noise 
 % seed2 = rng().Seed; % uncomment to save seed for reproducibility
 snr_X = 0.000; % noise level for X
@@ -10,7 +11,7 @@ snr_Y = 0.02; % noise level for Y
 noise_alg_X = 'logn'; % noise distribution for X
 noise_alg_Y = 'logn'; % noise distribution for Y
 
-num_train_inds = -3; % number of generations observed / number of gens around each peak (if negative)
+num_train_inds = 18; % number of generations observed / number of gens around each peak (if negative)
 train_time_frac = 0.75; % fraction of each generation observed
 subsamp_t = 2; % within-generation timescale multiplier
 
@@ -19,12 +20,11 @@ toggle_zero_crossing = 1; % halt simulations that are non-positive
 
 phifun_Y = @(t)(1-t.^2).^9; % test function for continuous data
 tf_Y_params = {'meth','FFT','param',2,'mtmin',3,'subinds',-3};% test function params
-% phifun_Y = 'delta'; %@(t)(1-t.^2).^9; % test function for continuous data - strong form
-% tf_Y_params = {'meth','direct','param',1,'mtmin',1};% test function params - strong form
+%%% for strong form with centered FD of width '2w+1' use phifun_Y = 'delta'; tf_Y_params = {'meth','direct','param',w,'mtmin',1};
 
 WENDy_args = {'maxits_wendy',5,...
     'lambdas',10.^linspace(-4,0,50),'alpha',0.01,...
-    'ittol',10^-4,'diag_reg',10^-6,'verbose',0};
+    'ittol',10^-4,'diag_reg',10^-6,'verbose',1};
 autowendy = 0.95; % confidence level for automatic library incrementation
 tol = 5; % default heuristic covariance factor for incrementation, chosen when autowendy = 0.5;
 tol_min = 0.1; % lower bound on rel. resid. to increment library, default for covariance severely underestimated
@@ -60,15 +60,12 @@ tol_dd_sim = 10^-10; % ODE tolerance (abs,rel) for diagnostic sim
 yscl = 'log';
 
 %% get data
-dr = '/home/danielmessenger/Dropbox/Boulder/research/data/dukic collab/';
-% load([dr,'FH_feedback.mat']);
 warning('off','MATLAB:dispatcher:UnresolvedFunctionHandle')
-load([dr,'Gregs_mod_V=0.5.mat'],'Ycell','X','t_epi','custom_tags_X',...
+load('data/Gregs_mod_V=0.5.mat','Ycell','X','t_epi','custom_tags_X',...
     'yearlength','custom_tags_Y','linregargs_fun_IC','linregargs_fun_Y',...
     'linregargs_fun_X','W_IC_true','tags_IC_true',...
     'W_Y_true','tags_X_true','tags_Y_true','W_X_true','tags_Ext_X_true','tags_Ext_Y_true',...
     'rhs_IC_true','rhs_Y_true','rhs_X_true','tn','t','Y','sig_tmax');
-% gregs_evoMod;
 
 %% format data
 [Y_train,X_train,train_inds,train_time,nstates_X,nstates_Y,X_in,sigma_X,sigma_Y,nX,nY] = ...
@@ -103,9 +100,3 @@ coeff_compare;
 
 %% sim full system
 sim_script;
-
-%% extra 
-% phifun_Y = @(t)exp(-5*[1./(1-t.^2)-1]);
-% phifun_Y = optTFcos(3,0);
-% phifun_Y = 'delta'; % test function for continuous data
-% tf_Y_params = {'meth','direct','param',1,'mtmin',1};% test function params

@@ -1,7 +1,7 @@
 addpath(genpath('wsindy_obj_base'))
 if toggle_sim>0
 
-    x0s = [X(train_inds(1),:);mean(X_train.*nX).*(1 + sqrt(3)*oos_std*(rand(num_sim,2)-0.5)*2)];
+    x0s = [X(train_inds(1),:);mean(X_train.*nX).*(1 + sqrt(3)*oos_std*(rand(num_sim,nstates_X)-0.5)*2)];
     X_test_cell = cell(size(x0s,1),1);
     Y_test_cell = cell(size(x0s,1),1);
     X_pred_cell = cell(size(x0s,1),1);

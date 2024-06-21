@@ -1,15 +1,17 @@
+addpath(genpath('utils'))
+
 dr = '~/Desktop/mits_study/';%
 loadvars = {'results_cell','ntrain_inds','rngs','sim_cell'};
 peaks_ = true;
 subt = 2;
 ttf = [0.75];
-mits = 0;
+maxits_wendy = 5;
 res_ind = {};
 mns = []; meds = [];
 for kk=1:6
     snr_Y = 0.1*2^(kk-6);
     sind = 11;%[1 3 4 6 7 9 11]
-    load([dr,'sweep_snrY_',num2str(snr_Y),'_ttf_',num2str(ttf),'_subt_',num2str(subt),'_mits_',num2str(mits),'_peaks.mat'],loadvars{:})
+    load([dr,'sweep_snrY_',num2str(snr_Y),'_ttf_',num2str(ttf),'_subt_',num2str(subt),'_mits_',num2str(maxits_wendy),'_peaks.mat'],loadvars{:})
     err_tol = 0.5;
     n_err_tols = cellfun(@(s) get_n_err_tol(s{2}{1},s{1}{1},err_tol) , sim_cell(end,:));
     res_ind = [res_ind,{n_err_tols(:)}];
@@ -27,4 +29,4 @@ set(gca,'Xticklabels',x,'Xtick',log10(x),'Xlim',[min(log10(x))-mean(diff(log10(x
     'ticklabelinterpreter','latex','fontsize',18)
 set(gca,'Ylim',[0 80])
 grid on
-saveas(gcf,['~/Desktop/n_err_tol_mits_',num2str(mits),'.png'])
+saveas(gcf,['~/Desktop/n_err_tol_mits_',num2str(maxits_wendy),'.png'])

@@ -5,6 +5,13 @@ function [rhs_xy,W,tags_param] = longtime_map(W,lib_state,lib_param,n_state,n_pa
     if isequal(class(lib_param),'double')
         lib_param = library('tags',lib_param);
     end
+    if isempty(n_state)
+        n_state = ones(1,lib_state.nstates);
+    end
+    if isempty(n_param)
+        n_param = ones(1,lib_param.nstates);
+    end
+
     tags_param = cell2mat(lib_param.tags(:));
     tags_state = cell2mat(lib_state.tags(:));
     supp = cellfun(@(W)find(any(W~=0,2)),W(:),'uni',0);

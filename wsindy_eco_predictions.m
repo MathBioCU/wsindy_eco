@@ -1,5 +1,4 @@
 %% get samples
-
 n= 200;
 X_pred_cloud = cell(n,1);
 test_ind = 1;

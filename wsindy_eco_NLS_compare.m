@@ -17,7 +17,7 @@ sig_tmax = 0;
 num_t_epi = 112;
 tol_dd_sim = 10^-8;
 toggle_zero_crossing=1;
-stop_tol = 1000;
+stop_tol = 1000;    
 
 %%% sampled data params
 subsamp_t = 2;

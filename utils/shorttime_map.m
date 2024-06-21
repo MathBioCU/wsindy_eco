@@ -5,6 +5,13 @@ function [rhs_xy,W,tags_param,M] = shorttime_map(W,lib_state,lib_param,n_state,n
     if isequal(class(lib_param),'double')
         lib_param = library('tags',lib_param);
     end
+    if isempty(n_state)
+        n_state = ones(1,lib_state.nstates);
+    end
+    if isempty(n_param)
+        n_param = ones(1,lib_param.nstates);
+    end
+    
     tags_param = cell2mat(lib_param.tags(:));
     supp = cellfun(@(W)find(any(W~=0,2)),W(:),'uni',0);
     features_W = cell(length(W),1);
