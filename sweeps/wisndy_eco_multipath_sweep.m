@@ -1,11 +1,11 @@
-ntrain_inds = [-5];
-peak_width = 2;
-rngs = 1:100;
-snr_Ys = [0.002 0.01 0.02 0.05];
-snr_X = 0;
-train_time_frac = 0.75;
-subsamp_t = 3;
-maxits_wendy = 5;
+% ntrain_inds = [-5];
+% peak_width = 2;
+% rngs = 1:100;
+% snr_Ys = [0.002 0.01 0.02 0.05];
+% snr_X = 0;
+% train_time_frac = 0.75;
+% subsamp_t = 3;
+% maxits_wendy = 5;
 
 addpath(genpath('../wsindy_obj_base'))
 addpath(genpath('../utils'))
@@ -50,8 +50,8 @@ linregargs_fun_IC = @(WS){}; % addition linear regression args, including constr
 linregargs_fun_Y = @(WS){}; % Stored with data
 linregargs_fun_X = @(WS){}; % Stored with data
 
-dr = '~/Desktop/';
-% dr = '/projects/dame8201/datasets/dukic_collab/';
+% dr = '~/Desktop/';
+dr = '/projects/dame8201/datasets/dukic_collab/';
 
 load([dr,'host_multipath_6-3_c.mat'],'Ycell','X','t_epi','yearlength',...
     'W_IC_true','W_X_true','W_Y_true','tags_Ext_X_true','tags_Ext_Y_true','tags_IC_true','tags_X_true','tags_Y_true',...
