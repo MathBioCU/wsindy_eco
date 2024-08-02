@@ -39,7 +39,7 @@ end
 
 function [value, isterminal, direction] = myEvent(T, Y, thresh, toggle_zero_crossing)
     if toggle_zero_crossing
-        value      = or(norm(Y) >= thresh, any(Y==0));
+        value      = or(norm(Y) >= thresh, any(Y<0));
     else
         value      = norm(Y) >= thresh;
     end

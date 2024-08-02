@@ -11,6 +11,10 @@ function [rhs_xy,W,tags_param,M] = shorttime_map(W,lib_state,lib_param,n_state,n
     if isempty(n_param)
         n_param = ones(1,lib_param.nstates);
     end
+
+    if length(lib_state)<length(W)
+        lib_state = repelem(lib_state,1,length(W));
+    end
     
     tags_param = cell2mat(lib_param.tags(:));
     supp = cellfun(@(W)find(any(W~=0,2)),W(:),'uni',0);
@@ -21,7 +25,7 @@ function [rhs_xy,W,tags_param,M] = shorttime_map(W,lib_state,lib_param,n_state,n
             f = @(X) X(1)*0;
             supp_j = find(W{i}(supp{i}(j),:));
             for k=1:length(supp_j) % cols / param fcns
-                M = [M; 1/prod(n_state.^lib_state.tags{supp{i}(j)})*n_state(i)*prod((1./n_param).^tags_param(supp_j(k),:))];
+                M = [M; 1/prod(n_state.^lib_state(i).tags{supp{i}(j)})*n_state(i)*prod((1./n_param).^tags_param(supp_j(k),:))];
                 W{i}(supp{i}(j),supp_j(k)) = W{i}(supp{i}(j),supp_j(k))*M(end);
                 f = @(X) f(X)+W{i}(supp{i}(j),supp_j(k))*lib_param.terms{supp_j(k)}.evalterm(X);
             end
@@ -29,7 +33,7 @@ function [rhs_xy,W,tags_param,M] = shorttime_map(W,lib_state,lib_param,n_state,n
         end
     end
     
-    features = cellfun(@(s)lib_state.get_fHandles(s),supp,'uni',0);
+    features = arrayfun(@(i)lib_state(i).get_fHandles(supp{i}),(1:length(supp))','uni',0);
     param_map = @(X)cellfun(@(f)arrayfun(@(i)f{i}(X),1:length(f)),features_W,'uni',0);
     rhs_xy = @(y,X) rhs_fun(features,param_map(X),y); % 
     tags_param = cell2mat(lib_param.tags(:));

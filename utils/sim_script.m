@@ -1,7 +1,7 @@
 addpath(genpath('wsindy_obj_base'))
 if toggle_sim>0
 
-    x0s = [X(train_inds(1),:);mean(X_train.*nX).*(1 + sqrt(3)*oos_std*(rand(num_sim,nstates_X)-0.5)*2)];
+    x0s = [X(train_inds(1),:);X(min(train_inds(1)+1,end),:);mean(X_train.*nX).*(1 + sqrt(3)*oos_std*(rand(num_sim,nstates_X)-0.5)*2)];
     X_test_cell = cell(size(x0s,1),1);
     Y_test_cell = cell(size(x0s,1),1);
     X_pred_cell = cell(size(x0s,1),1);
@@ -10,7 +10,8 @@ if toggle_sim>0
         x0 = x0s(jj,:);
         num_gen = floor(size(X,1));
         sig_tmax = 0;
-        num_t_epi = 112;
+        % num_t_epi = 112;
+        num_t_epi = size(Ycell{1},1);
         if isequal(x0,X(1,:))
             X_test_cell{jj} = X; Y_test_cell{jj} = Ycell; Y_test = Y; t_epi_test = t_epi; tn_test = tn; t_test = t;
         else
@@ -20,7 +21,7 @@ if toggle_sim>0
         [X_pred_cell{jj},Y_pred_cell{jj},Y_pred,t_pred,tn_pred,t_epi_pred] = sim_hybrid_fcn(rhs_IC,rhs_Y,rhs_X,x0,nstates_Y,...
             num_gen,num_t_epi,yearlength,sig_tmax,tol_dd_sim,toggle_zero_crossing,stop_tol*max(max(cell2mat(Y_train)./nY)));
     
-        n = size(X_pred_cell{jj},1);
+        n = min(size(X_pred_cell{jj},1),size(X_test_cell{jj},1));
         if toggle_zero_crossing==1
             if any([X_pred_cell{jj}(n,:)]<0)
                 fprintf(['negative values detected in X(%u) \n'],find([X_pred_cell{jj}(n,:)]<0))

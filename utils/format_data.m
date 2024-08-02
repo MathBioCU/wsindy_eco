@@ -1,12 +1,15 @@
 function [Y_train,X_train,train_inds,train_time,nstates_X,nstates_Y,X_in,sigma_X,sigma_Y,nX,nY] = ...
     format_data(Ycell,X,t_epi,subsamp_t,train_time_frac,num_train_inds,...
-    test_length,snr_X,snr_Y,noise_alg_X,noise_alg_Y,seed1,seed2)
+    test_length,snr_X,snr_Y,noise_alg_X,noise_alg_Y,seed1,seed2,toggle_scale)
 
     if ~exist('seed1','var')
         seed1='shuffle';
     end
     if ~exist('seed2','var')
         seed2='shuffle';
+    end
+    if ~exist('toggle_scale','var')
+        toggle_scale =1;
     end
 
     if num_train_inds < 0
@@ -31,6 +34,7 @@ function [Y_train,X_train,train_inds,train_time,nstates_X,nstates_Y,X_in,sigma_X
     else
         X_in = seed1(:);
     end
+    X_in = X_in(1:min(end,length(Ycell)));
     Y_train = arrayfun(@(n)Ycell{n}(1:subsamp_t:floor(end*train_time_frac),:),X_in,'uni',0);
     train_inds = unique([X_in(:);X_in(:)+1]);
     X_train = X(train_inds,:);
@@ -52,7 +56,7 @@ function [Y_train,X_train,train_inds,train_time,nstates_X,nstates_Y,X_in,sigma_X
         % X_train = X_train.*exp(sigma_X.*randn(size(X_train)));        
         sigma_X = repmat(snr_X*rms(X_train),size(X_train,1),1);
         if snr_X>0
-            X_train = X_train.^2./sqrt(X_train.^2+rms(X_train).^2*snr_X^2).*exp(sqrt(log(1+rms(X_train).^2./X_train.^2*snr_X^2)).*randn(size(X_train)));
+            X_train = X_train.^2./sqrt(X_train.^2+rms(X_train).^2*snr_X^2+eps).*exp(sqrt(log(1+rms(X_train).^2./(X_train+eps).^2*snr_X^2)).*randn(size(X_train)));
         end
     end
     if isequal(noise_alg_Y,'AWGN')
@@ -70,17 +74,21 @@ function [Y_train,X_train,train_inds,train_time,nstates_X,nstates_Y,X_in,sigma_X
         % Y_train = cellfun(@(y,s) y.*exp(s.*randn(size(y))),Y_train,sigma_Y,'uni',0);
         sigma_Y = cellfun(@(y)snr_Y*rms(y),Y_train,'uni',0);
         if snr_Y>0
-            Y_train = cellfun(@(y)y.^2./sqrt(y.^2+rms(y).^2*snr_Y^2).*exp(sqrt(log(1+rms(y).^2./y.^2*snr_Y^2)).*randn(size(y))),Y_train,'uni',0);
+            Y_train = cellfun(@(y)y.^2./sqrt(y.^2+rms(y).^2*snr_Y^2+eps).*exp(sqrt(log(1+rms(y).^2./(y+eps).^2*snr_Y^2)).*randn(size(y))),Y_train,'uni',0);
         end
         % Y_train = cellfun(@(y)y.*exp(-0.5*log(1+snr_Y^2)+sqrt(log(1+y*snr_Y^2)).*randn(size(y))))),Y_train,'uni',0);
     end
 
-    nX = mean(abs(X_train));
-    nY = mean(abs(cell2mat(Y_train)));
-
-    % nX = mean(mean(abs(X_train)))*ones(1,nstates_X);
-    % nY = mean(mean(abs(cell2mat(Y_train))))*ones(1,nstates_Y);
-
+    if toggle_scale==1
+        nX = mean(abs(X_train));
+        nY = mean(abs(cell2mat(Y_train)));
+    elseif toggle_scale==0
+        nX = ones(1,nstates_X);
+        nY = ones(1,nstates_Y);
+    end
+        % nX = mean(mean(abs(X_train)))*ones(1,nstates_X);
+        % nY = mean(mean(abs(cell2mat(Y_train))))*ones(1,nstates_Y);
+    
     X_train = X_train./nX;
     Y_train = cellfun(@(x)x./nY,Y_train,'uni',0);
     sigma_X = sigma_X./nX;
