@@ -24,11 +24,11 @@ num_sim = 5; % number of out-of-sample testing simulations
 oos_std = 0.5; % std of out-of-sample ICs, uniformly randomly sampled around training IC
 
 phifun_Y = @(t)(1-t.^2).^9; % test function for continuous data
-tf_Y_params = {'meth','FFT','param',1,'mtmin',7,'subinds',-3};% test function params
+tf_Y_params = {'meth','FFT','param',1,'mtmin',3,'subinds',-3};% test function params
 
 WENDy_args = {'maxits_wendy',maxits_wendy,...
     'lambdas',10.^linspace(-3,-1,40),'alpha',0.01,...
-    'ittol',10^-4,'diag_reg',10^-4,'verbose',0};
+    'ittol',10^-4,'diag_reg',10^-6,'verbose',0};
 autowendy = 0.95; % increment library approximate confidence interval with this confidence level 
 toggle_X_var = 'true';
 tol = 5; % default heuristic increment, chosen when autowendy = 0.5;

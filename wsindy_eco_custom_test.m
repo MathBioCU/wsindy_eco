@@ -7,7 +7,7 @@ seed1 = 2;   % seed for random generation selection, can be pre-selected generat
 seed2 = 1;randi(10^9); % seed for random noise 
 % seed2 = rng().Seed; % uncomment to save seed for reproducibility
 snr_X = 0.00; % noise level for X
-snr_Y = 0.01; % noise level for Y
+snr_Y = 0.00; % noise level for Y
 noise_alg_X = 'logn'; % noise distribution for X
 noise_alg_Y = 'logn'; % noise distribution for Y
 
@@ -20,11 +20,11 @@ toggle_scale = 1;
 toggle_zero_crossing = 0; % halt simulations that are non-positive
 
 phifun_Y = @(t)(1-t.^2).^9; % test function for continuous data
-tf_Y_params = {'meth','FFT','param',1,'mtmin',7,'subinds',-3};% test function params
+tf_Y_params = {'meth','direct','param',3,'mtmin',3,'subinds',-3};% test function params
 
 WENDy_args = {'maxits_wendy',5,...
     'lambdas',10.^linspace(-3,-1,40),'alpha',0.01,...
-    'ittol',10^-4,'diag_reg',10^-4,'verbose',0};
+    'ittol',10^-4,'diag_reg',10^-6,'verbose',1};
 autowendy = 0.95; % confidence level for automatic library incrementation
 tol = 5; % default heuristic covariance factor for incrementation, chosen when autowendy = 0.5;
 tol_min = 0.1; % lower bound on rel. resid. to increment library, default for covariance severely underestimated
@@ -47,7 +47,7 @@ linregargs_fun_IC = @(WS){}; % addition linear regression args, including constr
 linregargs_fun_Y = @(WS){}; % Stored with data
 linregargs_fun_X = @(WS){}; % Stored with data
 %%% example:
-% linregargs_fun_IC = @(WS){'Aineq',-WS.G{1},'bineq',zeros(size(WS.G{1},1),1)}; %%% enforce nonnegative IC map on data
+% linregargs_fun_X = @(WS){'Aineq',-WS.G{1},'bineq',zeros(size(WS.G{1},1),1)}; %%% enforce nonnegative IC map on data
 
 %% post-processing
 test_length = 20; % number of generations to test over
@@ -65,13 +65,13 @@ yscl = 'log';
 % load('data/forced_FHN.mat','Ycell', 'X', 't_epi', 'yearlength') %%% load in data (minimal vars needed)
 % load('~/Desktop/host_multipath.mat') %%% load in data include true model to benchmark
 % load('~/Desktop/host_multipath_davies.mat') %%% load in data include true model to benchmark
-% load('~/Desktop/host_multipath_6-3_c.mat','Ycell','X','t_epi','yearlength',...
-%     'W_IC_true','W_X_true','W_Y_true','tags_Ext_X_true','tags_Ext_Y_true','tags_IC_true','tags_X_true','tags_Y_true',...
-%     'rhs_Y_true','rhs_X_true','rhs_IC_true') %%% load in data include true model to benchmark
-
-load('~/Desktop/host_multipath_6-3_d_steady_state_1path.mat','Ycell','X','t_epi','yearlength',...
+load('~/Desktop/host_multipath_6-3_c.mat','Ycell','X','t_epi','yearlength',...
     'W_IC_true','W_X_true','W_Y_true','tags_Ext_X_true','tags_Ext_Y_true','tags_IC_true','tags_X_true','tags_Y_true',...
     'rhs_Y_true','rhs_X_true','rhs_IC_true') %%% load in data include true model to benchmark
+
+% load('~/Desktop/host_multipath_6-3_d_steady_state_1path.mat','Ycell','X','t_epi','yearlength',...
+%     'W_IC_true','W_X_true','W_Y_true','tags_Ext_X_true','tags_Ext_Y_true','tags_IC_true','tags_X_true','tags_Y_true',...
+%     'rhs_Y_true','rhs_X_true','rhs_IC_true') %%% load in data include true model to benchmark
 
 num_gen = 50;
 

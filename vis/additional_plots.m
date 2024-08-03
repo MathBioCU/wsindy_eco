@@ -6,14 +6,16 @@ yL_cl = 'b--';% colors for learned data
 xO_cl = 'ko';% colors for observed data
 yO_cl = 'r'; % colors for observed data
 yobs_cl = 'r-';
+jj=1;
 for j=1:nstates_X
+    n = size(X_pred_cell{jj},1);
     subplot(1,nstates_X,j)
     h0=plot(tn_test(1:n),X_test_cell{jj}(1:n,j),x_cl,...
-        t_test, Y_test(:,j),'-',yearlength*[n_err_tol]*[1 1],ylims{j},'k--','linewidth',3,'markersize',7);
+        t_test_cell{jj}, cell2mat(cellfun(@(y)y(:,j),Y_test_cell{jj},'un',0)),'-',yearlength*[n_err_tol]*[1 1],ylims{j},'k--','linewidth',3,'markersize',7);
     set(h0(2),'color',y_cl)
     hold on
     h2=plot(tn_pred(1:n),X_pred_cell{jj}(1:n,j),xL_cl,...
-        t_pred, Y_pred(:,j),yL_cl,yearlength*[n_err_tol]*[1 1],ylims{j},'k--','linewidth',3,'markersize',7);
+        t_pred_cell{jj}, cell2mat(cellfun(@(y)y(:,j),Y_pred_cell{jj},'un',0)),yL_cl,yearlength*[n_err_tol]*[1 1],ylims{j},'k--','linewidth',3,'markersize',7);
     set(gca,'ticklabelinterpreter','latex','fontsize',12,...
         'Xtick',yearlength*floor(linspace(0,max(n-1,1),min(n,5))),...
         'XtickLabels',floor(linspace(0,max(n-1,1),min(n,5))),...
@@ -31,13 +33,14 @@ for j=1:nstates_X
 end
 %%
 figure(3);clf
+ind=1;
 for j=1:2
     subplot(1,2,j)
-    h0=plot(t_test, Y_test(:,3+j),'linewidth',3,'markersize',7);
+    h0=plot(t_test_cell{ind}, Y_test_cell{ind}(:,3+j),'linewidth',3,'markersize',7);
     set(h0(1),'color',    y_cl)
     hold on
     h2=plot(...
-        t_pred, Y_pred(:,3+j),yL_cl,'linewidth',3,'markersize',7);
+        t_pred_cell{ind}, Y_pred_cell{ind}(:,3+j),yL_cl,'linewidth',3,'markersize',7);
     set(gca,'ticklabelinterpreter','latex','fontsize',12,...
         'Xtick',yearlength*floor(linspace(0,max(n-1,1),min(n,5))),...
         'XtickLabels',floor(linspace(0,max(n-1,1),min(n,5))),...
@@ -47,16 +50,15 @@ for j=1:2
     legend([h0(1);h2(1)],{'true model output','learned model output'},'location','sw','interpreter','latex','fontsize',14)
     ylabel(['susc. ',num2str(j),' $(\nu_',num2str(j),')$'],'interpreter','latex')
     xlabel('generation number ($n$)','interpreter','latex') 
-    xlim([0 20*yearlength])
+    % xlim([0 20*yearlength])
 end
 %%
 
-j=1;
+j=4;
 figure(4);clf
-i=1;
-subplot(3,ceil(size(Y_ns,1)/3+1/3),i)
+subplot(3,ceil(size(Y_ns,1)/3+1/3),1)
 X_sub = find(diff(train_inds)==1);
-plot(train_time{i},nY(j)*Y_train{X_in==X_sub(i)}(:,j),'r-',Y_ns{i,2},Y_ns{i,1}(:,j),'b-.',...
+plot(train_time{1},nY(j)*Y_train{X_in==X_sub(1)}(:,j),'r-',Y_ns{1,2},Y_ns{1,1}(:,j),'b-.',...
     'linewidth',3)
 set(gca,'fontsize',40,'Xtick', [],'Ytick',[])
 legend({'data','learned'},'location','westoutside')
