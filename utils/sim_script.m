@@ -15,8 +15,15 @@ if toggle_sim>0
         if isequal(x0,X(1,:))
             X_test_cell{jj} = X; Y_test_cell{jj} = Ycell; Y_test = Y; t_epi_test = t_epi; tn_test = tn; t_test = t;
         else
-            [X_test_cell{jj},Y_test_cell{jj},Y_test,t_test,tn_test,t_epi_test] = sim_hybrid_fcn(rhs_IC_true,rhs_Y_true,rhs_X_true,x0,nstates_Y,...
-            num_gen,num_t_epi,yearlength,sig_tmax,tol_dd_sim,toggle_zero_crossing,inf);
+            if exist('rhs_IC_true','var')
+                [X_test_cell{jj},Y_test_cell{jj},Y_test,t_test,tn_test,t_epi_test] = sim_hybrid_fcn(rhs_IC_true,rhs_Y_true,rhs_X_true,x0,nstates_Y,...
+                num_gen,num_t_epi,yearlength,sig_tmax,tol_dd_sim,toggle_zero_crossing,inf);
+            else
+                X_test_cell{jj}=X*0;
+                Y_test_cell{jj}=cellfun(@(y)y*0,Ycell,'uni',0);
+                t_epi_test = t_epi; tn_test = tn; t_test = t;
+                Y_test = Y*0;
+            end
         end
         [X_pred_cell{jj},Y_pred_cell{jj},Y_pred,t_pred,tn_pred,t_epi_pred] = sim_hybrid_fcn(rhs_IC,rhs_Y,rhs_X,x0,nstates_Y,...
             num_gen,num_t_epi,yearlength,sig_tmax,tol_dd_sim,toggle_zero_crossing,stop_tol*max(max(cell2mat(Y_train)./nY)));
@@ -37,7 +44,11 @@ if toggle_sim>0
         fprintf('n_{%0.1f}=%0.2f \n',err_tol,n_err_tol)
 
         if toggle_zero_crossing
-            ylims = arrayfun(@(j)[0.1*min([X_pred_cell{jj}(:,j);X_test_cell{jj}(:,j)]) 10*max([X_pred_cell{jj}(:,j);X_test_cell{jj}(:,j)])],1:nstates_X,'uni',0);
+            if exist('rhs_IC_true','var')
+                ylims = arrayfun(@(j)[0.1*min([X_pred_cell{jj}(:,j);X_test_cell{jj}(:,j)]) 10*max([X_pred_cell{jj}(:,j);X_test_cell{jj}(:,j)])],1:nstates_X,'uni',0);
+            else
+                ylims = arrayfun(@(j)[0.1*min([X_pred_cell{jj}(1:end-1,j)]) 10*max([X_pred_cell{jj}(1:end-1,j)])],1:nstates_X,'uni',0);
+            end
             yticks = arrayfun(@(j)10.^(floor(log10(max(ylims{j}(1),eps))):2:ceil(log10(ylims{j}(2)))),1:nstates_X,'uni',0);
             YS = 'log';
         else
@@ -58,16 +69,22 @@ if toggle_sim>0
             
             for j=1:nstates_X
                 subplot(1,nstates_X,j)
-                h0=plot(tn_test(1:n),X_test_cell{jj}(1:n,j),x_cl,...
-                    t_test, Y_test(:,j),'-',yearlength*[n_err_tol]*[1 1],ylims{j},'k--','linewidth',3,'markersize',7);
-                set(h0(2),'color',y_cl)
+                h0=plot(tn_test(1:n),X_test_cell{jj}(1:n,j),x_cl,t_test, Y_test(:,j),'-','linewidth',3,'markersize',7);
                 hold on
-                h2=plot(tn_pred(1:n),X_pred_cell{jj}(1:n,j),xL_cl,...
-                    t_pred, Y_pred(:,j),yL_cl,yearlength*[n_err_tol]*[1 1],ylims{j},'k--','linewidth',3,'markersize',7);
+                if isequal(x0,X(1,:))
+                    plot(yearlength*[n_err_tol]*[1 1],ylims{j},'k--','linewidth',3)
+                end
+                set(h0(2),'color',y_cl)
+                h2=plot(tn_pred(1:n),X_pred_cell{jj}(1:n,j),xL_cl,t_pred, Y_pred(:,j),yL_cl,'linewidth',3,'markersize',7);
+                if isequal(x0,X(1,:))
+                    plot(yearlength*[n_err_tol]*[1 1],ylims{j},'k--','linewidth',3)
+                end                
                 set(gca,'ticklabelinterpreter','latex','fontsize',12,...
                     'Xtick',yearlength*floor(linspace(0,max(n-1,1),min(n,5))),...
                     'XtickLabels',floor(linspace(0,max(n-1,1),min(n,5))),...
-                    'Yscale',yscl,'Ylim',ylims{j},'Ytick',yticks{j},'Xlim',[0 yearlength*max(n-1,1)])
+                    'Yscale',yscl,...
+                    ...'Ylim',ylims{j},'Ytick',yticks{j},...
+                    'Xlim',[0 yearlength*max(n-2,1)])
                 grid on;
             
                 legend([h0(2);h2(2)],{'true model output','learned model output'},'location','sw','interpreter','latex','fontsize',14)

@@ -3,15 +3,15 @@ addpath(genpath(folder));
 rng('shuffle');
 
 %% data hyperparameters
-seed1 = 1;   % seed for random generation selection, can be pre-selected generations, or half-width for peak sampling
+seed1 = 1:40;   % seed for random generation selection, can be pre-selected generations, or half-width for peak sampling
 seed2 = randi(10^9); % seed for random noise 
 % seed2 = rng().Seed; % uncomment to save seed for reproducibility
 snr_X = 0.00; % noise level for X
 snr_Y = 0.00; % noise level for Y
 noise_alg_X = 'logn'; % noise distribution for X
-noise_alg_Y = 'AWGN'; % noise distribution for Y
+noise_alg_Y = 'logn'; % noise distribution for Y
 
-num_train_inds = 25; % number of generations observed / number of gens around each peak (if negative)
+num_train_inds = 1; % number of generations observed / number of gens around each peak (if negative)
 train_time_frac = 0.8; % fraction of each generation observed
 subsamp_t = 2; % within-generation timescale multiplier
 
@@ -31,13 +31,14 @@ tol_dd_learn = 10^-10; % ODE tolerance for forward solves in computing Y(T)
 X_var = [];'true'; % specify variances for discrete vars X in WENDy, [] gives 0, 'true' uses true variances used to generate noise
 
 pmax_IC = 1; % max poly degree for IC solve
-polys_Y_Yeq = [1 3]; % Y library for Yeq solve
+polys_Y_Yeq = 0:4; % Y library for Yeq solve
 pmax_X_Yeq = 1; % max poly degree for X terms in Yeq solve
-polys_X_Xeq = 0:1; % X library in Xeq solve
+polys_X_Xeq = 0:2; % X library in Xeq solve
 pmax_Y_Xeq = 1; % max poly degree for Y terms in Xeq solve
 neg_Y = 1; % toggle use negative powers for X terms in Yeq
 neg_X = 0; % toggle use negative powers for Y terms in Xeq
-boolT = @(T)all([min(T,[],2)>=0 sum(T,2)>=-2 max(T,[],2)<=2 max(T(:,6:7),[],2)==0],2); % restrict poly terms in Yeq
+boolT = @(T)all([min(T,[],2)>=-1 max(T,[],2)<=3],2); % restrict poly terms in Yeq
+boolTL = repmat({@(T,L) min(T(:,min(find(L.ftag),end)),[],2)~=0},1,3);
 custom_tags_Y = {}; % custom Y tags for Yeq. Example: {[1+V zeros(1,nstates_Y-2) 1]}. Stored with data
 custom_tags_X = {}; % custom X tags for Yeq. Stored with data
 linregargs_fun_IC = @(WS){}; % addition linear regression args, including constraints, as function of WSINDy model object
@@ -61,6 +62,7 @@ yscl = 'linear';
 %% format data: Ycell,X,t_epi,
 % load('data/forced_FHN.mat','Ycell', 'X', 't_epi', 'yearlength') %%% load in data (minimal vars needed)
 % load('~/Desktop/host_multipath.mat') %%% load in data include true model to benchmark
+load('~/Desktop/host_multipath_6-3_c_nu.mat','Ycell','X','t_epi','yearlength')
 
 num_gen = size(X,1);
 tn = (0:num_gen-1)*yearlength; % discrete time
@@ -85,9 +87,9 @@ end
 tic;
 [rhs_IC,W_IC,rhs_Y,W_Y,rhs_X,W_X,lib_Y_IC,lib_X_IC,...
     lib_Y_Yeq,lib_X_Yeq,lib_Y_Xeq,lib_X_Xeq,WS_IC,WS_Yeq,WS_Xeq,...
-    CovW_IC,CovW_Y,CovW_X,errs_Yend,loss_IC,loss_Y,loss_X] = ...
+    CovW_IC,CovW_Y,CovW_X,Y_ns,errs_Yend,loss_IC,loss_Y,loss_X] = ...
     wsindy_eco_fcn(toggle_zero_crossing,stop_tol,phifun_Y,tf_Y_params,WENDy_args,autowendy,...
-    tol,tol_min,tol_dd_learn,pmax_IC,polys_Y_Yeq,polys_X_Xeq,pmax_X_Yeq,pmax_Y_Xeq,neg_Y,neg_X,boolT,...
+    tol,tol_min,tol_dd_learn,pmax_IC,polys_Y_Yeq,polys_X_Xeq,pmax_X_Yeq,pmax_Y_Xeq,neg_Y,neg_X,boolT,boolTL,...
     Y_train,X_train,X_var,train_inds,train_time,t_epi,yearlength,nstates_X,nstates_Y,X_in,nX,nY,...
     custom_tags_X,custom_tags_Y,linregargs_fun_IC,linregargs_fun_Y,linregargs_fun_X);
 fprintf('\n runtime: %2.3f \n',toc)

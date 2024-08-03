@@ -1,5 +1,6 @@
 toggle_save = 1;
 tic
+addpath(genpath('utils'))
 %% 2-path system
 nstates_Y = 6;
 nstates_X = 3;
@@ -26,7 +27,11 @@ P0 = log(lam)/nu1/yearlength;
 % S0 = lam/(lam-1)*phi*P0;
 % S0 = (lam^(c1^2)-1)*lam/(c1^2*(1+phi)*(lam-1));
 % P0 = phi*(lam^(c1^2)-1)/(1+phi)/c1^2;
-x0 = [S0 P0 10^-4];%.*(1+max(0.2*randn(1,5),-1+eps));
+x0 = [S0 P0 0];%.*(1+max(0.2*randn(1,5),-1+eps));
+
+load(['~/Desktop/host_multipath_6-3_steady_state_1path.mat'],'X')
+x0 = X(end,:);
+x0(end) = 10^-4;
 
 tags_IC_true = [eye(3);zeros(1,3)];
 W_IC_true = {[1 0 0 0],[0 1 0 0],[0 0 1 0],[0 0 0 nu1],[0 0 0 nu2],[0 0 0 0]};
@@ -80,7 +85,9 @@ while n<num_gen-1
         rhs_Y = @(y)rhs_Y_true(y,X(n,:));
         [t_epi{n},x] = ode15s(@(t,x)rhs_Y(x),t_epi{n},rhs_IC_true(X(n,:)),options_ode_sim);
         Ycell{n} = x;
-        X(n+1,:) = rhs_X_true(X(n,:),x(end,:));
+        new_X = rhs_X_true(X(n,:),x(end,:));
+        new_X(new_X<10^-12) = 0;
+        X(n+1,:) = new_X;
         n=n+1;
     else
         break
@@ -117,7 +124,7 @@ linregargs_fun_X = @(G,b){};
 
 if toggle_save==1
     clear j n nstates_X nstates_Y options_ode_sim rhs_Y t tmax_epi_rand x toggle_save
-    save(['~/Desktop/host_multipath_6-3_c.mat'])
+    save(['~/Desktop/host_multipath_6-3_d_steady_state_1path.mat'])
 end
 toc
 

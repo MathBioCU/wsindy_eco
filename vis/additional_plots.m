@@ -51,10 +51,11 @@ for j=1:2
 end
 %%
 
-j=5;
+j=1;
 figure(4);clf
 i=1;
 subplot(3,ceil(size(Y_ns,1)/3+1/3),i)
+X_sub = find(diff(train_inds)==1);
 plot(train_time{i},nY(j)*Y_train{X_in==X_sub(i)}(:,j),'r-',Y_ns{i,2},Y_ns{i,1}(:,j),'b-.',...
     'linewidth',3)
 set(gca,'fontsize',40,'Xtick', [],'Ytick',[])
