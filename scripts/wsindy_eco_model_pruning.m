@@ -1,5 +1,4 @@
-%% run wsindy_eco_fcn
-wsindy_eco_script_manu;
+%%% first run desired wsindy_eco_script_;
 
 %% display models
 
@@ -15,21 +14,22 @@ disp(['Xeq terms:'])
 X_mod{:}
 
 %% view conf int
+addpath(genpath('../vis'))
 
 figure(1);clf
 varget = 'IC';
 view_conf_int;
-IC_prune = find(abs(w_hat)<0.25*conf_int);
+IC_prune = find(abs(w_hat)<0.1*conf_int);
 
 figure(2);clf
 varget = 'Y';
 view_conf_int;
-Y_prune = find(abs(w_hat)<0.25*conf_int);
+Y_prune = find(abs(w_hat)<0.1*conf_int);
 
 figure(3);clf
 varget = 'X';
 view_conf_int;
-X_prune = find(abs(w_hat)<0.25*conf_int);
+X_prune = find(abs(w_hat)<0.1*conf_int);
 
 %% decide on terms to prune
 

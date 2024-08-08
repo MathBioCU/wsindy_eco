@@ -2,29 +2,26 @@ addpath(genpath('../utils'))
 addpath(genpath('../wsindy_obj_base'));
 
 %% feedback FitzHugh-Nagumo
+%beta_{n+1} = beta_n + 0.5 - 1/g*R(T)
+%g_{n+1} = 0.5*(g_n + I(T))
 
-%discrete : N,Z
-%continuos: S,P
+%S(0) = 
+%R(0) = 0
+%%% beta is a function of yearly public policy which relates to the previous
+%%% years infectious + recovered
+%S' = -beta*SI + gamma*S 
+%I' = beta*SI - mu*I
+%R' = g*I ------ integral of I = 1/g R(T)
 
-nstates_Y = 2;
+%discrete : beta,g
+%continuos: S,I,R
+
+nstates_Y = 3;
 nstates_X = 2;
 
-x0 = [0.007127252309866   0.018345638426356];
-
-%%% evo mod:
-w = 0.14; 
-sig = 0;
-b = 0; 
-s = 0; 
-a = 0; 
-delta = 1/16; 
+x0 = [0.1 0.9];
 mu = 0.01;
-m = 0;
-lam = 5.5;
-V = 0.5;
-phi = 7; 
-gam = 0.3;
-nu = 1;
+gamma = 0.05;
 
 yearlength = 56;
 sig_tmax = 0;

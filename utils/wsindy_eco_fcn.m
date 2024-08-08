@@ -13,7 +13,6 @@ function [rhs_IC,W_IC,rhs_Y,W_Y,rhs_X,W_X,...
         Y_train,X_train,X_var,train_inds,train_time,t_epi,yearlength,nstates_X,nstates_Y,X_in,nX,nY,...
         custom_tags_X,custom_tags_Y,linregargs_fun_IC,linregargs_fun_Y,linregargs_fun_X)
 
-
     if isempty(X_var)
         X_var = X_train*0;
     end
@@ -56,6 +55,10 @@ function [rhs_IC,W_IC,rhs_Y,W_Y,rhs_X,W_X,...
         Uobj_Y,'uni',0);
     lhs_Yeq = arrayfun(@(i)term('ftag',E(i,:),'linOp',1),(1:nstates_Y)','uni',0);
     lib_Y_Yeq = arrayfun(@(i)library('nstates',nstates_Y),1:nstates_Y);
+    if isempty(boolTL)
+        boolTL = repmat({[]},1,nstates_Y);
+    end
+
     if ~isempty(custom_tags_Y)
         if length(custom_tags_Y)==1
             custom_tags_Y = repmat(custom_tags_Y,1,nstates_Y);

@@ -1,37 +1,28 @@
-toggle_save = 1;
-tic
-addpath(genpath('utils'))
-%% 2-path system
+addpath(genpath('../utils'))
+addpath(genpath('../wsindy_obj_base'));
+
+%% two-pathogen system parameters
+%discrete : N,Z1,Z2
+%continuos: S,P1,P2,nu1,nu2,I1
+
 nstates_Y = 6;
 nstates_X = 3;
-
-%discrete : N,nu1,nu2,Z1,Z2
-%continuos: S,nu1,nu2,P1,P2,I1,I2
 
 yearlength = 8;
 rho = -0.5;
 c1 = 2.06;
 c2 = 0.68;
-mu1 = 0.99;%65
+mu1 = 0.99;
 mu2 = 0.32;
 lam = 5;
 phi1 = 2;
 phi2 = 2;
-
 nu1 = 5.0;
 nu2 = 0.5;
+
 S0 = mu1/nu1;
 P0 = log(lam)/nu1/yearlength;
-% SS = mu1*trapz(t_epi{end},x(:,2))+x(end,2);
-% P0 = 1/(1+phi)*SS;
-% S0 = lam/(lam-1)*phi*P0;
-% S0 = (lam^(c1^2)-1)*lam/(c1^2*(1+phi)*(lam-1));
-% P0 = phi*(lam^(c1^2)-1)/(1+phi)/c1^2;
-x0 = [S0 P0 0];%.*(1+max(0.2*randn(1,5),-1+eps));
-
-load(['~/Desktop/host_multipath_6-3_steady_state_1path.mat'],'X')
-x0 = X(end,:);
-x0(end) = 10^-4;
+x0 = [S0 P0 10.^-4];
 
 tags_IC_true = [eye(3);zeros(1,3)];
 W_IC_true = {[1 0 0 0],[0 1 0 0],[0 0 1 0],[0 0 0 nu1],[0 0 0 nu2],[0 0 0 0]};
@@ -60,22 +51,30 @@ W_X_true = {[0 lam 0;0 0 0],...
             [0 -phi2 -phi2;phi2 0 0],...
             };
 
+custom_tags_Y = [];
+custom_tags_X = [];
+linregargs_fun_IC = @(G,b){};%{'Aineq',-G,'bineq',zeros(size(G,1),1)};
+linregargs_fun_Y = @(G,b){};
+linregargs_fun_X = @(G,b){};
+
 %% sim 
-addpath(genpath('../utils'));
-addpath(genpath('../wsindy_obj_base'));
+num_gen = 10;
+num_t_epi = 224;
+tol_ode = 10^-12;
+sig_tmax = 0;
+toggle_save = 0;
+
+tic
 [rhs_IC_true,~,~] = shorttime_map(W_IC_true,zeros(1,nstates_Y),tags_IC_true,[],[]);
 rhs_IC_true = @(X) rhs_IC_true(zeros(nstates_Y,1),X(:));
 [rhs_Y_true,~,~] = shorttime_map(W_Y_true,tags_Y_true,tags_X_true,[],[]);
 [rhs_X_true,~,~] = shorttime_map(W_X_true,tags_Ext_X_true,tags_Ext_Y_true,[],[]);
 
-num_gen = 100;
 Ycell = cell(num_gen-1,1);
 t_epi = cell(num_gen-1,1);
 X = zeros(num_gen,nstates_X);
-sig_tmax = 0;
 X(1,:) = x0;
-num_t_epi = 224;
-options_ode_sim = odeset('RelTol',10^-12,'AbsTol',10^-12*ones(1,nstates_Y));
+options_ode_sim = odeset('RelTol',tol_ode,'AbsTol',tol_ode*ones(1,nstates_Y));
 n=1;
 while n<num_gen-1
     disp(n)
@@ -86,7 +85,7 @@ while n<num_gen-1
         [t_epi{n},x] = ode15s(@(t,x)rhs_Y(x),t_epi{n},rhs_IC_true(X(n,:)),options_ode_sim);
         Ycell{n} = x;
         new_X = rhs_X_true(X(n,:),x(end,:));
-        new_X(new_X<10^-12) = 0;
+        new_X(new_X<tol_ode) = 0;
         X(n+1,:) = new_X;
         n=n+1;
     else
@@ -99,7 +98,9 @@ if n~=num_gen
     t_epi = t_epi(1:num_gen-1);
     X = X(1:num_gen,:);
 end
-%%
+toc
+
+%%% view 
 tn = (0:num_gen-1)*yearlength;
 Y = cell2mat(Ycell); 
 t = cell2mat(arrayfun(@(i)(i-1)*yearlength+t_epi{i},(1:num_gen-1)','uni',0));
@@ -116,47 +117,8 @@ for j=1:nstates_X
     semilogy(tn, X(:,j),'b-o','linewidth',3)
 end
 
-custom_tags_Y = [];
-custom_tags_X = [];
-linregargs_fun_IC = @(G,b){};%{'Aineq',-G,'bineq',zeros(size(G,1),1)};
-linregargs_fun_Y = @(G,b){};
-linregargs_fun_X = @(G,b){};
-
+%%% save
 if toggle_save==1
     clear j n nstates_X nstates_Y options_ode_sim rhs_Y t tmax_epi_rand x toggle_save
     save(['~/Desktop/host_multipath_6-3_d_steady_state_1path.mat'])
-end
-toc
-
-function [rhs_X,w_X] = longtime_map(w_X,tags_Ext_NZ,tags_Ext_Y,nX,nY)
-    if isempty(nX)
-        nX = ones(1,size(tags_Ext_NZ,2));
-    end
-    if isempty(nY)
-        nY = ones(1,size(tags_Ext_Y,2));
-    end
-
-    supp_X = cellfun(@(W)find(any(W~=0,2)),w_X(:),'uni',0);
-    features_Y = cell(length(w_X),1);
-    for i=1:length(w_X)
-        for j=1:length(find(supp_X{i}))
-            f = @(Y) Y(1)*0;
-            for k=1:size(tags_Ext_Y,1)
-                  w_X{i}(supp_X{i}(j),k) = [w_X{i}(supp_X{i}(j),k)/prod(nX.^tags_Ext_NZ(supp_X{i}(j),:))*nX(i)]*prod((1./nY).^tags_Ext_Y(k,:));
-                  f = @(Y) f(Y)+w_X{i}(supp_X{i}(j),k)*prod(Y.^tags_Ext_Y(k,:));
-            end
-            features_Y{i}{j} = f;
-        end
-    end    
-    features_NZ = cellfun(@(s)arrayfun(@(i)@(X)prod(X.^tags_Ext_NZ(i,:)),s,'uni',0),supp_X,'uni',0);
-    param_map_X = @(Y)cellfun(@(f)arrayfun(@(i)f{i}(Y),1:length(f)),features_Y,'uni',0);
-    rhs_X = @(Y,X) max(rhs_fun_1inp(features_NZ,param_map_X(Y),X),0);
-end
-function dx = rhs_fun_1inp(features,params,x)
-    dx = zeros(length(params),1);
-    for i=1:length(params)
-        if ~isempty(features{i})
-            dx(i) = dot(cellfun(@(z1) z1(x),features{i}),params{i});
-        end
-    end
 end

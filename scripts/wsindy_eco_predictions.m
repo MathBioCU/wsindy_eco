@@ -15,8 +15,10 @@ parfor j=1:n
     rhs_IC_s = shorttime_map(W_IC_s,lib_Y_IC,lib_X_IC,ones(1,nstates_Y),ones(1,nstates_X));
     rhs_IC_s = @(X) rhs_IC_s(zeros(nstates_Y,1),X(:));
     rhs_Y_s = shorttime_map(W_Y_s,lib_Y_Yeq,lib_X_Yeq,ones(1,nstates_Y),ones(1,nstates_X));
-    rhs_X_s = longtime_map(W_X_s,lib_X_Xeq,lib_Y_Xeq,ones(1,nstates_X),ones(1,nstates_Y));
-    
+    % rhs_X_s = longtime_map(W_X_s,lib_X_Xeq,lib_Y_Xeq,ones(1,nstates_X),ones(1,nstates_Y));
+    rhs_X_s = shorttime_map(W_X_s,lib_X_Xeq,lib_Y_Xeq,ones(1,nstates_X),ones(1,nstates_Y));
+
+
     [X_pred_cloud{j},Ycell_pred,Y_pred,t_pred,tn_pred,t_epi_pred] = sim_hybrid_fcn(...
         rhs_IC_s,rhs_Y_s,rhs_X_s,x0,...
         nstates_Y,num_gen,num_t_epi,yearlength,sig_tmax,...

@@ -1,6 +1,6 @@
 %% view
-dr = '~/Desktop/';%
-% dr = '~/Dropbox/Boulder/research/data/dukic collab/';
+% dr = '~/Desktop/';%
+dr = '~/Dropbox/Boulder/research/data/dukic collab/';
 loadvars = {'results_cell','snr_Y','ntrain_inds','rngs','sim_cell'};
 % peaks_ = false;subx = 1:3;
 peaks_ = true;subx = 1:3;

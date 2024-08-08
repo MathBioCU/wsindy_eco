@@ -1,4 +1,6 @@
-addpath(genpath('utils'))
+%%% data on request
+
+addpath(genpath('../utils'))
 
 dr = '~/Desktop/mits_study/';%
 loadvars = {'results_cell','ntrain_inds','rngs','sim_cell'};
