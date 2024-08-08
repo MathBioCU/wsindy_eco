@@ -1,4 +1,8 @@
-addpath(genpath('wsindy_obj_base'))
+%%% wsindy_eco with known initial conditions map - here noise in both X and Y is possible
+
+addpath(genpath('../wsindy_obj_base'))
+addpath(genpath('../utils'))
+
 rng('shuffle');
 
 %%% data hyperparameters
@@ -57,7 +61,8 @@ toggle_view_data = 0; % toggle view data before alg runs
 tol_dd_sim = 10^-10; % ODE tolerance (abs,rel) for diagnostic sim
 
 %%% get data
-dr = '/home/danielmessenger/Dropbox/Boulder/research/data/dukic collab/';
+dr = '../data/';
+
 % load([dr,'FH_feedback.mat']);
 warning('off','MATLAB:dispatcher:UnresolvedFunctionHandle')
 load([dr,'Gregs_mod_V=0.5.mat'],'Ycell','X','t_epi','custom_tags_X',...

@@ -9,6 +9,9 @@ fprintf('IC coeff err 2: %1.3e \n',errs_2_IC);
 fprintf('IC coeff errInf: %1.3e \n',errs_inf_IC)
 fprintf('IC TPR: %0.3f \n',tpr_IC)
 
+if length(lib_Y_Yeq)==1
+    lib_Y_Yeq = repmat(lib_Y_Yeq,1,nstates_Y);
+end
 W_Y_compare = arrayfun(@(i)...
     cell2mat(inject_coeff_param(W_Y_true(i),tags_Y_true,tags_X_true, cell2mat(lib_Y_Yeq(i).tags'),cell2mat(lib_X_Yeq.tags'))),...
     (1:length(W_Y_true))','un',0);
