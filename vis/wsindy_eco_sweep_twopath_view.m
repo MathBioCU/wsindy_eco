@@ -16,8 +16,8 @@ sinds = [1 3 4 6 7 9 11];
 toggle_filter=0;
 
 for iii=0
-sub_sind = {iii};
-for sinds = [11]
+sub_sind = {5};
+for sinds = [5]
 
     if iii==0
         sim_inds = 1;
@@ -30,7 +30,7 @@ for sinds = [11]
 if toggle_filter==0
     filter_fun = @(r)all([r{3}(1:end-1)<=1;r{6}(5)<=1;r{9}(3)<=1]);
 elseif toggle_filter==1
-    filter_fun = @(r)all([r{3}(1:end-1)<=1;r{6}(4)<=1;r{9}(3)==1]);
+    filter_fun = @(r)all([r{3}(1:end-1)<=1;r{6}(4:5)==1;r{9}(3)<=1]);
 end    
 loadvars = {'results_cell','snr_Y','ntrain_inds','rngs','sim_cell','num_gen','num_sim'};
 ylabs = {'Coefficient error ($E_2^{IC}$)',[],'True Positivity Ratio (TPR$^{IC})$',...

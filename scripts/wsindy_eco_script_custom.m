@@ -2,24 +2,31 @@ addpath(genpath('../utils'));
 addpath(genpath('../wsindy_obj_base'));
 rng('shuffle');
 
+%% load data
+%%% Ycell is a cell containing N=|I| trajectories of the continuous Y variables at each of the observed generations I
+%%% X is a matrix with rows corresponding to observations of the discrete variables at the generations I
+%%% t_epi is a cell of timepoints corresponding to the observations Ycell
+%%% yearlength is the length of each generation (=T in the manuscript)
+
+load('../data/Gregs_mod_V=0.5.mat','Ycell','X','t_epi','yearlength')
+
 %% data hyperparameters
 seed1 = 2;   % seed for random generation selection, can be pre-selected generations, or half-width for peak sampling
-seed2 = seed1; % seed for random noise
-% seed1 = randi(10^9);   % seed for random generation selection, can be pre-selected generations, or half-width for peak sampling
-seed2 = randi(10^9); % seed for random noise 
+% seed2 = randi(10^9); % seed for random noise 
+seed2 = rng().Seed; % uncomment to save seed for reproducibility
+
 snr_X = 0.00; % noise level for X
 snr_Y = 0.05; % noise level for Y
 noise_alg_X = 'logn'; % noise distribution for X
 noise_alg_Y = 'logn'; % noise distribution for Y
 
-num_train_inds = -4; % number of generations observed / number of gens around each peak (if negative)
-% num_train_inds = 18; % number of generations observed / number of gens around each peak (if negative)
+num_train_inds = -5; % number of generations observed / number of gens around each peak (if negative)
 train_time_frac = 0.75; % fraction of each generation observed
 subsamp_t = 2; % within-generation timescale multiplier
 toggle_scale = 1;
 
 %% algorithmic hyperparameters
-toggle_zero_crossing = 1; % halt simulations that are non-positive
+toggle_zero_crossing = 0; % halt simulations that are non-positive
 
 eta = 9;
 phifun_Y = @(t)(1-t.^2).^eta; % test function for continuous data
@@ -64,23 +71,11 @@ toggle_view_data = 1; % toggle view data before alg runs
 tol_dd_sim = 10^-10; % ODE tolerance (abs,rel) for diagnostic sim
 yscl = 'log';
 
-%% get data
-warning('off','MATLAB:dispatcher:UnresolvedFunctionHandle')
-toggle_load_true_model = 1;
-if toggle_load_true_model==0
-    load('../data/Gregs_mod_V=0.5.mat','Ycell','X','t_epi','yearlength')
-else
-    load('../data/Gregs_mod_V=0.5.mat','Ycell','X','t_epi','yearlength',...
-        'custom_tags_X','custom_tags_Y','linregargs_fun_IC','linregargs_fun_Y',...
-        'linregargs_fun_X','W_IC_true','tags_IC_true',...
-        'W_Y_true','tags_X_true','tags_Y_true','W_X_true','tags_Ext_X_true','tags_Ext_Y_true',...
-        'rhs_IC_true','rhs_Y_true','rhs_X_true','tn','t','Y','sig_tmax');
-end
 
 %% format data
 [Y_train,X_train,train_inds,train_time,nstates_X,nstates_Y,X_in,sigma_X,sigma_Y,nX,nY] = ...
     format_data(Ycell,X,t_epi,subsamp_t,train_time_frac,num_train_inds,test_length,snr_X,snr_Y,...
-    noise_alg_X,noise_alg_Y,seed1,seed2,toggle_scale);
+    noise_alg_X,noise_alg_Y,seed1,seed2);
 num_gen = size(X,1);
 tn = (0:num_gen-1)*yearlength; % discrete time
 num_t_epi = length(t_epi{1});
@@ -96,9 +91,6 @@ if toggle_view_data==1 %%% view data
         plot(tn,X(:,j),'b-.',t,Y(:,j),'r-',...
             (train_inds-1)*yearlength,X_train(:,j)*nX(j),'kx','linewidth',3,'markersize',10)
         legend({'X','Y','I'})
-        % set(gca,'Yscale','log')
-        set(gca,'ticklabelinterpreter','latex','fontsize',16)
-        grid on
     end
 end
 
@@ -117,7 +109,7 @@ tic;
 fprintf('\n runtime: %2.3f \n',toc)
 
 %% compare coefficients
-if all([exist('W_IC_true','var'),exist('W_Y_true','var'),exist('W_X_true','var')])
+if all(cellfun(@(s)exist(s,'var'),{'W_IC_true','W_Y_true','W_X_true'}))
     coeff_compare;
 end
 

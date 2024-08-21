@@ -1,7 +1,13 @@
-%%% first run desired wsindy_eco_script_;
+%% load learned model or first run desired wsindy_eco_script
+
+% load('../data/UQ_plots_uncorrected_red_model.mat')
+% 
+% sim_script;
 
 %% display models
-
+%%% each model is displayed in terms of f(u^s_1,...,u^s_2,u^p_1,...,u^p_2)
+%%% for the IC map and Y maps, u^s = Y, u^p = X
+%%% for the X map, u^s = X, u^p = Y
 IC_mod = WS_IC.disp_mod('w',cell2mat(cellfun(@(w)w(:),W_IC,'Un',0)));
 Y_mod = WS_Yeq.disp_mod('w',cell2mat(cellfun(@(w)w(:),W_Y,'Un',0)));
 X_mod = WS_Xeq.disp_mod('w',cell2mat(cellfun(@(w)w(:),W_X,'Un',0)));
@@ -13,23 +19,29 @@ Y_mod{:}
 disp(['Xeq terms:'])
 X_mod{:}
 
-%% view conf int
-addpath(genpath('../vis'))
+if exist('W_IC_true','var')
+    coeff_compare;
+end
 
-figure(1);clf
+%% view conf int
+% close all
+addpath(genpath('../vis'))
+conf_tol = 0.25;
+
+figure(21);clf
 varget = 'IC';
 view_conf_int;
-IC_prune = find(abs(w_hat)<0.1*conf_int);
+IC_prune = find(abs(w_hat)<conf_tol*conf_int);
 
-figure(2);clf
+figure(22);clf
 varget = 'Y';
 view_conf_int;
-Y_prune = find(abs(w_hat)<0.1*conf_int);
+Y_prune = find(abs(w_hat)<conf_tol*conf_int);
 
-figure(3);clf
+figure(23);clf
 varget = 'X';
 view_conf_int;
-X_prune = find(abs(w_hat)<0.1*conf_int);
+X_prune = find(abs(w_hat)<conf_tol*conf_int);
 
 %% decide on terms to prune
 

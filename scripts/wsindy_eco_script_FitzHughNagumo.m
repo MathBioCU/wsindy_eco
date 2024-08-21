@@ -7,11 +7,11 @@ seed1 = randi(10^9);   % seed for random generation selection, can be pre-select
 seed2 = randi(10^9); % seed for random noise 
 % seed2 = rng().Seed; % uncomment to save seed for reproducibility
 snr_X = 0.00; % noise level for X
-snr_Y = 0.001; % noise level for Y
+snr_Y = 0.05; % noise level for Y
 noise_alg_X = 'AWGN'; % noise distribution for X
 noise_alg_Y = 'AWGN'; % noise distribution for Y
 
-num_train_inds = 16; % number of generations observed / number of gens around each peak (if negative)
+num_train_inds = 12; % number of generations observed / number of gens around each peak (if negative)
 train_time_frac = 0.75; % fraction of each generation observed
 subsamp_t = 3; % within-generation timescale multiplier
 
@@ -60,9 +60,10 @@ tol_dd_sim = 10^-10; % ODE tolerance (abs,rel) for diagnostic sim
 yscl = 'linear';
 
 %% format data: only Ycell,X,t_epi,yearlength are needed
-load('../data/forced_FHN.mat','Ycell','X','t_epi','yearlength',...
-    'W_IC_true','W_X_true','W_Y_true','tags_Ext_X_true','tags_Ext_Y_true','tags_IC_true','tags_X_true','tags_Y_true',...
-    'rhs_Y_true','rhs_X_true','rhs_IC_true') %%% load in data include true model to benchmark
+load('../data/forced_FHN.mat','Ycell','X','t_epi','yearlength');
+% load('../data/forced_FHN.mat','Ycell','X','t_epi','yearlength',...
+%     'W_IC_true','W_X_true','W_Y_true','tags_Ext_X_true','tags_Ext_Y_true','tags_IC_true','tags_X_true','tags_Y_true', ...
+%     'rhs_Y_true','rhs_X_true','rhs_IC_true'); %%% load in data include true model to benchmark
 
 num_gen = size(X,1);
 tn = (0:num_gen-1)*yearlength; % discrete time
@@ -98,7 +99,7 @@ tic;
 fprintf('\n runtime: %2.3f \n',toc)
 
 %% compare coefficients
-if all(cellfun(@(s)exist('s','var'),{'W_IC_true','W_Y_true','W_X_true'}))
+if all(cellfun(@(s)exist(s,'var'),{'W_IC_true','W_Y_true','W_X_true'}))
     coeff_compare;
 end
 
